@@ -4,13 +4,9 @@ import { Navbar } from "@/components/navbar"
 import {
   ArrowRight,
   Copy,
-  Brain,
   BarChart3,
-  Shield,
   Zap,
   Database,
-  Search,
-  TrendingUp,
   FileText,
   Activity,
   Globe,
