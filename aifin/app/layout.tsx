@@ -1,6 +1,7 @@
 import { IBM_Plex_Mono } from "next/font/google"
 import type { Metadata } from "next"
 
+// TypeScript may complain about side-effect CSS imports in some setups.
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 

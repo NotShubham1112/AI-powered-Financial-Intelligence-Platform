@@ -2,7 +2,7 @@
 
 export function TypographyH1({ children }: { children: React.ReactNode }) {
   return (
-    <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-white mb-6">
+    <h1 className="scroll-m-20 text-5xl font-bold tracking-tight text-white mb-8 leading-tight">
       {children}
     </h1>
   )
@@ -10,7 +10,7 @@ export function TypographyH1({ children }: { children: React.ReactNode }) {
 
 export function TypographyH2({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="scroll-m-20 border-b border-zinc-800 pb-2 text-3xl font-semibold tracking-tight text-white mt-8 mb-4 first:mt-0">
+    <h2 className="scroll-m-20 border-b border-zinc-800 pb-3 text-3xl font-bold tracking-tight text-white mt-16 mb-6 first:mt-0">
       {children}
     </h2>
   )
@@ -34,7 +34,7 @@ export function TypographyH4({ children }: { children: React.ReactNode }) {
 
 export function TypographyP({ children }: { children: React.ReactNode }) {
   return (
-    <p className="leading-7 text-zinc-300 [&:not(:first-child)]:mt-6">
+    <p className="leading-8 text-zinc-300 text-lg [&:not(:first-child)]:mt-6">
       {children}
     </p>
   )
@@ -42,7 +42,7 @@ export function TypographyP({ children }: { children: React.ReactNode }) {
 
 export function TypographyBlockquote({ children }: { children: React.ReactNode }) {
   return (
-    <blockquote className="mt-6 border-l-2 border-zinc-700 pl-6 italic text-zinc-400">
+    <blockquote className="mt-6 border-l-2 border-zinc-700 pl-6 italic text-zinc-300 text-lg">
       {children}
     </blockquote>
   )
@@ -50,7 +50,7 @@ export function TypographyBlockquote({ children }: { children: React.ReactNode }
 
 export function TypographyList({ items }: { items: string[] }) {
   return (
-    <ul className="my-6 ml-6 list-disc text-zinc-300 [&>li]:mt-2 [&>li]:text-zinc-300">
+    <ul className="my-6 ml-6 list-disc text-zinc-300 text-lg space-y-2">
       {items.map((item, idx) => (
         <li key={idx}>{item}</li>
       ))}

@@ -63,7 +63,7 @@ export const componentMap = {
  * Get safe component reference from registry
  * Returns null if component doesn't exist in controlled set
  */
-export function getSafeComponent(name: string): React.ComponentType<any> | null {
+export function getSafeComponent(name: string): React.ElementType | null {
   const component = componentMap[name as keyof typeof componentMap]
   return component || null
 }

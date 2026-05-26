@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-mono);
+  --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -131,12 +131,12 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "ss01", "ss02", "cv01";
   }
 
   html {
-    @apply font-mono;
+    @apply font-sans;
     scroll-behavior: smooth;
   }
 
@@ -168,7 +168,7 @@
 
   ::-webkit-scrollbar-thumb {
     background: var(--foreground);
-    border: 2px solid var(--background); /* Adds a slight gap around the solid rectangle */
+    border: 2px solid var(--background);
   }
 
   ::-webkit-scrollbar-thumb:hover {

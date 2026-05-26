@@ -10,51 +10,41 @@ export function ReportTypography({
         prose-invert
         max-w-none
 
-        prose-headings:font-semibold
         prose-headings:text-white
+        prose-headings:font-bold
+        prose-headings:tracking-tight
+
+        prose-h1:text-5xl
+        prose-h1:leading-tight
+        prose-h1:mb-8
+
+        prose-h2:text-3xl
+        prose-h2:mt-16
+        prose-h2:mb-6
+        prose-h2:border-b
+        prose-h2:border-zinc-800
+        prose-h2:pb-3
 
         prose-p:text-zinc-300
-        prose-p:leading-7
-        prose-p:mb-4
+        prose-p:text-lg
+        prose-p:leading-8
 
         prose-strong:text-white
-        prose-strong:font-semibold
 
-        prose-h1:text-3xl
-        prose-h1:mt-8
-        prose-h1:mb-4
-
-        prose-h2:text-2xl
-        prose-h2:mt-6
-        prose-h2:mb-3
-
-        prose-h3:text-xl
-        prose-h3:mt-4
-        prose-h3:mb-2
-
-        prose-table:border-zinc-800
-        prose-th:bg-zinc-900
-        prose-th:text-zinc-300
-        prose-th:border-zinc-800
-        prose-td:text-zinc-400
-        prose-td:border-zinc-800
+        prose-blockquote:border-zinc-700
+        prose-blockquote:text-zinc-300
+        prose-blockquote:italic
 
         prose-li:text-zinc-300
-        prose-li:marker:text-zinc-500
 
         prose-code:text-white
         prose-code:bg-zinc-900
-        prose-code:px-1.5
-        prose-code:py-0.5
-        prose-code:rounded
 
-        prose-pre:bg-black
-        prose-pre:border
-        prose-pre:border-zinc-800
+        prose-pre:bg-zinc-950
 
-        prose-blockquote:text-zinc-400
-        prose-blockquote:border-zinc-800
-        prose-blockquote:pl-4
+        prose-table:text-zinc-300
+        prose-th:text-white
+        prose-td:text-zinc-400
 
         prose-hr:border-zinc-800
       "
