@@ -52,6 +52,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
       return { parsedCharts: [], contentWithoutCharts: message.content, completedSteps: [], isArtifact: false }
     }
 
+    // Step 1: Extract chart code blocks (```chart:type ...```)
     const chartRegex = /```chart:(bar|line|area|pie)\s*\n([\s\S]*?)```/g
     const charts: ChartData[] = []
     let cleaned = sanitizeAssistantContent(message.content)
@@ -78,7 +79,15 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
       cleaned = cleaned.replace(match[0], "")
     }
 
-    // Count completed agent steps from "Step N:" headers in content
+    // Step 2: Extract JSON from ```json code blocks (common LLM wrapping pattern)
+    const jsonCodeBlockRe = /```(?:json)?\s*\n?(\{[\s\S]*?\}|\[[\s\S]*?\])\s*\n?```/g
+    let jsonBlock
+    const jsonCandidates: string[] = []
+    while ((jsonBlock = jsonCodeBlockRe.exec(cleaned)) !== null) {
+      jsonCandidates.push(jsonBlock[1].trim())
+    }
+
+    // Step 3: Count completed agent steps from "Step N:" headers in content
     const stepHeaderRegex = /### Step (\d+):/g
     let stepCount = 0
     let stepMatch
@@ -88,18 +97,38 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
     }
     const completedSteps = stepCount > 0 ? Array.from({ length: stepCount }, (_, i) => String(i + 1)) : []
 
-    // Detect if content is a ResearchArtifact JSON block
+    // Step 4: Detect if content is a ResearchArtifact JSON block
+    // Try the full cleaned content first, then extracted json code blocks
     const trimmed = cleaned.trim()
     let isArtifact = false
-    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    let artifactContent = trimmed
+
+    function tryParseAsArtifact(text: string): boolean {
       try {
-        isArtifact = tryValidateArtifact(JSON.parse(trimmed)) !== null
+        const parsed = JSON.parse(text)
+        return tryValidateArtifact(parsed) !== null
       } catch {
-        isArtifact = false
+        return false
       }
     }
 
-    return { parsedCharts: charts, contentWithoutCharts: cleaned.trim(), completedSteps, isArtifact }
+    if (tryParseAsArtifact(trimmed)) {
+      isArtifact = true
+    } else if (jsonCandidates.length > 0) {
+      // Try each extracted code block; use the first valid one
+      for (const block of jsonCandidates) {
+        if (tryParseAsArtifact(block)) {
+          isArtifact = true
+          artifactContent = block
+          break
+        }
+      }
+    }
+
+    // Step 5: If artifact detected in a code block, use that instead of cleaned content
+    const contentForRender = isArtifact && artifactContent !== trimmed ? artifactContent : trimmed
+
+    return { parsedCharts: charts, contentWithoutCharts: contentForRender, completedSteps, isArtifact }
   }, [message.content, isUser])
 
   return (

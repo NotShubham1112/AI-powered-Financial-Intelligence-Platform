@@ -11,6 +11,13 @@ import {
   ListItem
 } from "@/components/ui/typography"
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
   ArtifactRenderer,
   tryValidateArtifact,
   ResearchLayout,
@@ -57,13 +64,17 @@ function extractMetrics(body: string): { metrics: Array<{ label: string; value: 
 
 export function ResearchOutput({ content }: { content: string }) {
   // Try to parse as artifact JSON first
-  const artifact = React.useMemo(() => {
+  const { artifact, isJson } = React.useMemo(() => {
+    let parsedJson: unknown = null
+    let validJson = false
     try {
-      const parsed = JSON.parse(content)
-      return tryValidateArtifact(parsed)
+      parsedJson = JSON.parse(content)
+      validJson = true
     } catch {
-      return null
+      // not JSON
     }
+    const artifact = validJson ? tryValidateArtifact(parsedJson) : null
+    return { artifact, isJson: validJson }
   }, [content])
 
   // If valid artifact, render with institutional styling
@@ -71,6 +82,33 @@ export function ResearchOutput({ content }: { content: string }) {
     return (
       <ResearchLayout>
         <ArtifactRenderer artifact={artifact} />
+      </ResearchLayout>
+    )
+  }
+
+  // If content is valid JSON but not a valid artifact, render raw JSON nicely
+  if (isJson) {
+    return (
+      <ResearchLayout>
+        <div className="space-y-6">
+          <Card className="border-zinc-800">
+            <CardHeader>
+              <CardTitle>Analysis Result</CardTitle>
+              <CardDescription>Raw structured data</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <pre className="overflow-x-auto rounded-lg border border-border bg-black/50 p-4 text-sm text-muted-foreground font-mono whitespace-pre-wrap">
+                {(() => {
+                  try {
+                    return JSON.stringify(JSON.parse(content), null, 2)
+                  } catch {
+                    return content
+                  }
+                })()}
+              </pre>
+            </CardContent>
+          </Card>
+        </div>
       </ResearchLayout>
     )
   }
