@@ -207,9 +207,7 @@ function getMessageContent(msg: UIMessage): string {
 
   if (text) return text
   if (reasoning) {
-    const preview =
-      reasoning.length > 1200 ? `${reasoning.slice(0, 1200)}…` : reasoning
-    return `_Reasoning…_\n\n${preview}`
+    return `_Reasoning…_\n\n${reasoning}`
   }
   return ""
 }

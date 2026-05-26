@@ -1,9 +1,14 @@
-import { IBM_Plex_Mono } from "next/font/google"
+import { Inter, IBM_Plex_Mono } from "next/font/google"
 import type { Metadata } from "next"
 
 // TypeScript may complain about side-effect CSS imports in some setups.
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+
+const fontSans = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
 
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
@@ -23,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={ibmPlexMono.variable} suppressHydrationWarning>
-      <body className="font-mono antialiased">
+    <html lang="en" className={`${fontSans.variable} ${ibmPlexMono.variable}`} suppressHydrationWarning>
+      <body className="font-sans antialiased">
         <ThemeProvider defaultTheme="dark" attribute="class">
           {children}
         </ThemeProvider>

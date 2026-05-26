@@ -45,7 +45,7 @@ export function IntelligencePanel({
             </div>
           }
         >
-          <div className="grid grid-cols-2 gap-[1px] border-t border-border bg-border sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 border-t border-border pt-3 sm:grid-cols-3">
             <MetaCell label="run_id" value={executionMeta.runId.slice(0, 8)} />
             <MetaCell
               label="runtime"
@@ -81,7 +81,7 @@ export function IntelligencePanel({
         >
           <ul className="divide-y divide-border/60 px-4 py-1">
             {liveSignals.map((s, i) => (
-              <li key={i} className="flex items-start gap-2 py-2 font-mono text-[11px]">
+              <li key={i} className="flex items-start gap-2 py-2 text-[11px]">
                 <DirectionBadge direction={s.direction} />
                 <span className="text-foreground/85">{s.label}</span>
                 <span className="text-muted-foreground/50">— {s.detail}</span>
@@ -99,11 +99,11 @@ export function IntelligencePanel({
             </div>
           }
         >
-          <p className="px-4 py-3 font-mono text-[11px] leading-relaxed text-foreground/80">
+          <p className="px-4 py-3 text-[11px] leading-relaxed text-foreground/80">
             {debate.reconciliation}
           </p>
           {debate.adjustedConfidence != null && (
-            <p className="border-t border-border/60 px-4 py-2 font-mono text-[10px] text-muted-foreground/60">
+            <p className="border-t border-border/60 px-4 py-2 text-[10px] text-muted-foreground/60">
               adjusted_confidence: {debate.adjustedConfidence.toFixed(2)} ·{" "}
               {debate.resolution ?? "balanced"}
             </p>
@@ -121,7 +121,7 @@ export function IntelligencePanel({
         >
           <ul className="max-h-48 divide-y divide-border/60 overflow-y-auto px-4 py-1">
             {evidence.map((e) => (
-              <li key={e.claimId} className="py-2 font-mono text-[10px] leading-snug">
+              <li key={e.claimId} className="py-2 text-[10px] leading-snug">
                 <span className="text-foreground/90">{e.claim}</span>
                 <span className="mt-1 block text-muted-foreground/55">
                   {e.source} · conf {e.confidence} · {e.freshnessDays}d
@@ -140,7 +140,7 @@ function MetaCell({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-background px-3 py-2.5">
       <MetadataLabel className="mb-1 block">{label}</MetadataLabel>
-      <p className="truncate font-mono text-[11px] text-foreground/90">{value}</p>
+      <p className="truncate text-[11px] text-foreground/90">{value}</p>
     </div>
   )
 }

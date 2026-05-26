@@ -74,14 +74,14 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   return (
     <div className="w-full">
       <div className="mb-3 flex items-center gap-2">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/50">
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium">
           {isUser ? "operator" : "system"}
         </span>
-        <div className="h-px flex-1 bg-border/60" />
+        <div className="h-px flex-1 bg-border/40" />
       </div>
-      <div className={cn("space-y-3", isUser && "border-l-2 border-foreground/30 pl-4")}>
+      <div className={cn("space-y-3", isUser && "border-l-2 border-muted pl-4")}>
         {isUser ? (
-          <p className="whitespace-pre-wrap font-mono text-[13px] leading-relaxed text-foreground">
+          <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground">
             {message.content}
           </p>
         ) : (

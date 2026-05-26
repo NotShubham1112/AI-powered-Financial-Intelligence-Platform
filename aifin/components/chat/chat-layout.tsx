@@ -17,7 +17,7 @@ export function ChatLayout({ children }: ChatLayoutProps) {
       <div className="relative flex flex-1 overflow-hidden">
         <MarginLines />
         <ChatSidebar />
-        <main className="relative z-10 flex flex-1 flex-col overflow-hidden border-x border-border">
+        <main className="relative z-10 flex flex-1 flex-col overflow-hidden">
           {children}
         </main>
         <ArtifactPanel />

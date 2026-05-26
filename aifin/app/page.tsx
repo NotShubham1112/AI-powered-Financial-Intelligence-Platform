@@ -64,7 +64,7 @@ function HeroSection() {
               transition={{ duration: 0.4 }}
               className="mb-8 inline-flex items-center gap-3"
             >
-              <span className="border border-border bg-accent px-2 py-0.5 text-[11px] font-medium uppercase tracking-widest text-foreground">
+              <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-medium uppercase tracking-widest text-foreground">
                 Open source
               </span>
               <span className="text-[13px] text-muted-foreground">
@@ -101,18 +101,18 @@ function HeroSection() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="max-w-[520px]"
             >
-              <div className="border border-border bg-card">
+              <div className="rounded-lg border border-muted bg-card shadow-sm">
                 {/* Tabs */}
-                <div className="flex border-b border-border">
+                <div className="flex border-b border-muted">
                   {tabLabels.map((tab) => (
                     <button
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id)}
-                      className={`border-r border-border px-4 py-2 text-[13px] last:border-r-0 ${
+                      className={`px-4 py-2 text-[13px] transition-colors ${
                         activeTab === tab.id
-                          ? "font-medium text-foreground"
-                          : "text-muted-foreground"
+                          ? "bg-accent font-medium text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       {tab.label}
@@ -215,8 +215,8 @@ function WhatIsSection() {
   ]
 
   return (
-    <section id="research" className="border-b border-border">
-      <div className="mx-auto max-w-[1200px] px-6 py-24">
+    <section id="research" className="py-24">
+      <div className="mx-auto max-w-[1200px] px-6">
         <h2 className="mb-3 text-[22px] font-bold tracking-tight text-foreground">
           What is FININTEL?
         </h2>
@@ -228,11 +228,11 @@ function WhatIsSection() {
           trust layers — not raw indicator count.
         </p>
 
-        <div className="grid grid-cols-1 gap-[1px] border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feat) => (
             <div
               key={feat.label}
-              className="bg-background p-6 transition-colors hover:bg-accent"
+              className="rounded-lg border border-muted bg-background p-6 transition-colors hover:bg-accent shadow-sm"
             >
               <div className="mb-4 flex items-center gap-3">
                 <span className="text-muted-foreground/50 text-[13px]">[*]</span>
@@ -303,8 +303,8 @@ function CapabilitiesSection() {
   ]
 
   return (
-    <section id="markets" className="border-b border-border">
-      <div className="mx-auto max-w-[1200px] px-6 py-24">
+    <section id="markets" className="py-24">
+      <div className="mx-auto max-w-[1200px] px-6">
         <h2 className="mb-3 text-[22px] font-bold tracking-tight text-foreground">
           What ships today
         </h2>
@@ -313,11 +313,11 @@ function CapabilitiesSection() {
           engine output with OpenRouter (or local demo mode).
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {capabilities.map((cap) => (
             <div
               key={cap.title}
-              className="border-b border-r border-border p-8 transition-colors hover:bg-accent last:border-r-0 [&:nth-child(2n)]:md:border-r-0 [&:nth-child(3n)]:lg:border-r-0"
+              className="rounded-lg border border-muted p-8 transition-colors hover:bg-accent shadow-sm"
             >
               <cap.icon className="mb-4 h-5 w-5 text-muted-foreground/50" />
               <h3 className="mb-2 text-[14px] font-semibold text-foreground">

@@ -92,18 +92,18 @@ function SectionBlock({ title, body }: { title: string | null; body: string }) {
   return (
     <div>
       {title && (
-        <h2 className="mb-4 border-b border-zinc-800 pb-2 text-2xl font-semibold text-white">
+        <h2 className="mb-4 border-b border-border pb-2 text-2xl font-semibold text-foreground">
           {title}
         </h2>
       )}
-      
+
       <div className="space-y-4">
         {metrics.length > 0 && (
-          <div className="grid grid-cols-2 gap-[1px] border border-zinc-800 bg-zinc-900 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 border-0 sm:grid-cols-3">
             {metrics.map((m) => (
-              <div key={m.label} className="bg-black px-3 py-2.5">
-                <div className="mb-1 text-xs font-medium text-zinc-500">{m.label}</div>
-                <p className="font-mono text-sm text-white">
+              <div key={m.label} className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-sm">
+                <div className="mb-1 text-xs font-medium text-muted-foreground/60">{m.label}</div>
+                <p className="font-medium text-sm text-foreground">
                   {m.value}
                 </p>
               </div>
@@ -132,11 +132,11 @@ function ProseBlock({ text }: { text: string }) {
         if (/^[-*] /m.test(trimmed)) {
           const items = trimmed.split("\n").filter((l) => /^[-*] /.test(l))
           return (
-            <ul key={i} className="space-y-1.5 border-l border-zinc-700 pl-4 text-zinc-300">
+            <ul key={i} className="space-y-1.5 border-l border-border pl-4 text-muted-foreground">
               {items.map((item, j) => (
                 <li
                   key={j}
-                  className="font-mono text-sm leading-relaxed text-zinc-300"
+                  className="text-sm leading-relaxed text-muted-foreground"
                 >
                   <InlineText text={item.replace(/^[-*] /, "")} />
                 </li>
@@ -147,14 +147,14 @@ function ProseBlock({ text }: { text: string }) {
 
         if (trimmed.startsWith("### ")) {
           return (
-            <h4 key={i} className="text-lg font-semibold text-white mt-4 mb-2">
+            <h4 key={i} className="text-lg font-semibold text-foreground mt-4 mb-2">
               {trimmed.replace(/^### /, "")}
             </h4>
           )
         }
 
         return (
-          <p key={i} className="text-zinc-300 leading-7 text-base">
+          <p key={i} className="text-muted-foreground leading-7 text-base">
             <InlineText text={trimmed} />
           </p>
         )
@@ -177,14 +177,14 @@ function MarkdownTable({ raw }: { raw: string }) {
   const rows = lines.slice(2).map(parseRow)
 
   return (
-    <div className="overflow-x-auto border border-zinc-800 rounded-lg">
-      <table className="w-full border-collapse font-mono text-sm">
+    <div className="overflow-x-auto border border-border rounded-lg">
+      <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-zinc-800 bg-zinc-900">
+          <tr className="border-b border-border bg-muted/50">
             {headers.map((h, i) => (
               <th
                 key={i}
-                className="px-4 py-3 text-left font-medium text-zinc-400"
+                className="px-4 py-3 text-left font-medium text-muted-foreground/80"
               >
                 <InlineText text={h} />
               </th>
@@ -193,13 +193,13 @@ function MarkdownTable({ raw }: { raw: string }) {
         </thead>
         <tbody>
           {rows.map((row, ri) => (
-            <tr key={ri} className="border-b border-zinc-800 last:border-0 hover:bg-zinc-900/50">
+            <tr key={ri} className="border-b border-border last:border-0 hover:bg-muted/50/50">
               {row.map((cell, ci) => (
                 <td
                   key={ci}
                   className={cn(
-                    "px-4 py-3 text-zinc-300",
-                    ci === 0 && "font-medium text-white"
+                    "px-4 py-3 text-muted-foreground",
+                    ci === 0 && "font-medium text-foreground"
                   )}
                 >
                   <InlineText text={cell} />
@@ -222,7 +222,7 @@ function InlineText({ text }: { text: string }) {
     const bold = remaining.match(/^(\*\*)(.+?)\1/)
     if (bold) {
       parts.push(
-        <strong key={key++} className="font-semibold text-white">
+        <strong key={key++} className="font-semibold text-foreground">
           {bold[2]}
         </strong>
       )
@@ -234,7 +234,7 @@ function InlineText({ text }: { text: string }) {
       parts.push(
         <code
           key={key++}
-          className="rounded-sm bg-zinc-900 px-2 py-0.5 font-mono text-xs text-white border border-zinc-800"
+          className="rounded-sm bg-muted/50 px-2 py-0.5 font-mono text-xs text-foreground border border-border"
         >
           {code[1]}
         </code>
