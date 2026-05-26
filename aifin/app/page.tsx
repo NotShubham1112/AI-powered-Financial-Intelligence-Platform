@@ -1,6 +1,7 @@
 "use client"
 
 import { Navbar } from "@/components/navbar"
+import { MarginLines } from "@/design-system/components"
 import {
   ArrowRight,
   Copy,
@@ -23,25 +24,30 @@ import { motion } from "framer-motion"
 
 
 
-/* ─── BACKGROUND MARGIN LINES ─── */
-function MarginLines() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 mx-auto w-full max-w-[1200px] border-x dark:border-white/10 border-black/10"
-    />
-  )
-}
+const START_COMMANDS = {
+  mcp: "cd financial-mcp && make install && make run",
+  web: "cd aifin && npm install && cp .env.example .env.local && npm run dev",
+  test: "cd aifin && npm run test:integrations",
+} as const
+
+type StartTab = keyof typeof START_COMMANDS
 
 /* ─── HERO ─── */
 function HeroSection() {
   const [copied, setCopied] = useState(false)
+  const [activeTab, setActiveTab] = useState<StartTab>("mcp")
 
   function handleCopy() {
-    navigator.clipboard.writeText("npx finintel analyze TSLA")
+    navigator.clipboard.writeText(START_COMMANDS[activeTab])
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+
+  const tabLabels: { id: StartTab; label: string }[] = [
+    { id: "mcp", label: "MCP" },
+    { id: "web", label: "web" },
+    { id: "test", label: "test" },
+  ]
 
   return (
     <section className="relative overflow-hidden border-b border-border">
@@ -58,10 +64,10 @@ function HeroSection() {
               className="mb-8 inline-flex items-center gap-3"
             >
               <span className="border border-border bg-accent px-2 py-0.5 text-[11px] font-medium uppercase tracking-widest text-foreground">
-                New
+                Open source
               </span>
               <span className="text-[13px] text-muted-foreground">
-                AI-powered institutional financial intelligence
+                Next.js terminal + Python financial MCP server
               </span>
             </motion.div>
 
@@ -72,7 +78,7 @@ function HeroSection() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="mb-6 text-[clamp(2rem,5vw,3.5rem)] font-bold leading-[1.1] tracking-tight text-foreground"
             >
-              The autonomous financial research system
+              Institutional-grade financial research infrastructure
             </motion.h1>
 
             {/* Subtitle */}
@@ -82,8 +88,9 @@ function HeroSection() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="mb-10 max-w-[600px] text-[15px] leading-relaxed text-muted-foreground"
             >
-              Multi-agent AI platform for market analysis, portfolio intelligence,
-              earnings research, and risk evaluation.
+              Deterministic valuation, macro, credit, and technical engines run through an
+              agent pipeline — then OpenRouter synthesizes structured research with
+              evidence binding, debate resolution, and execution traces in the chat UI.
             </motion.p>
 
             {/* Command block */}
@@ -96,25 +103,31 @@ function HeroSection() {
               <div className="border border-border bg-card">
                 {/* Tabs */}
                 <div className="flex border-b border-border">
-                  <button className="border-r border-border px-4 py-2 text-[13px] font-medium text-foreground">
-                    npx
-                  </button>
-                  <button className="border-r border-border px-4 py-2 text-[13px] text-muted-foreground">
-                    pip
-                  </button>
-                  <button className="px-4 py-2 text-[13px] text-muted-foreground">
-                    docker
-                  </button>
+                  {tabLabels.map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`border-r border-border px-4 py-2 text-[13px] last:border-r-0 ${
+                        activeTab === tab.id
+                          ? "font-medium text-foreground"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
                 {/* Command */}
-                <div className="flex items-center justify-between px-4 py-3">
-                  <code className="text-[13px] text-muted-foreground">
-                    npx <span className="font-bold text-foreground">finintel</span>{" "}
-                    analyze TSLA
+                <div className="flex items-center justify-between gap-2 px-4 py-3">
+                  <code className="break-all text-[12px] leading-snug text-muted-foreground">
+                    <span className="text-foreground">{START_COMMANDS[activeTab]}</span>
                   </code>
                   <button
+                    type="button"
                     onClick={handleCopy}
-                    className="ml-4 text-muted-foreground/50 transition-colors hover:text-foreground"
+                    className="ml-2 shrink-0 text-muted-foreground/50 transition-colors hover:text-foreground"
+                    aria-label="Copy command"
                   >
                     {copied ? (
                       <span className="text-[11px] text-foreground">copied</span>
@@ -124,6 +137,11 @@ function HeroSection() {
                   </button>
                 </div>
               </div>
+              <p className="mt-3 text-[12px] text-muted-foreground/70">
+                MCP listens on{" "}
+                <code className="text-foreground/80">http://127.0.0.1:8000</code> · web app on{" "}
+                <code className="text-foreground/80">http://localhost:3000</code>
+              </p>
             </motion.div>
           </div>
 
@@ -164,34 +182,34 @@ function HeroSection() {
 function WhatIsSection() {
   const features = [
     {
-      label: "Multi-agent AI",
+      label: "Agent pipeline",
       description:
-        "Autonomous agents coordinate to analyze markets, earnings, and risk factors simultaneously",
+        "AgentRouter plans tool chains; ExecutionRuntime runs parallel DAG batches with retries, validation, and synthesis.",
     },
     {
-      label: "Deep research",
+      label: "Evidence registry",
       description:
-        "SEC filings, earnings calls, analyst reports, and news — parsed and synthesized in real-time",
+        "Engine outputs register source-bound claims (confidence, freshness, tool provenance) before the LLM narrates.",
     },
     {
-      label: "Live market data",
+      label: "Debate resolution",
       description:
-        "Real-time equity, options, and fixed income data streamed directly to your analysis pipeline",
+        "MacroAgent, QuantAgent, ValuationAgent, and RiskAgent theses are reconciled when macro and technical signals conflict.",
     },
     {
-      label: "Risk models",
+      label: "Deterministic engines",
       description:
-        "VaR, Monte Carlo, stress tests, and factor exposure analysis with institutional-grade accuracy",
+        "DCF, Black-Scholes, Taylor rule, yield curve, Merton default, credit spreads, RSI, MACD, and Bollinger — pure math, no I/O in engines.",
     },
     {
-      label: "Any data source",
+      label: "Research terminal",
       description:
-        "Connect Bloomberg, Refinitiv, Yahoo Finance, Alpha Vantage, or your proprietary feeds",
+        "Next.js chat UI with structured report sections, inline charts, intelligence panel (live signals, execution metadata), and model failover.",
     },
     {
-      label: "Private deployment",
+      label: "Local-first setup",
       description:
-        "Run on-premise or in your VPC. No data leaves your infrastructure. SOC 2 compliant",
+        "Run MCP and the web app on your machine. API keys live in .env.local; optional OpenRouter for live LLM (demo mode without a key).",
     },
   ]
 
@@ -202,8 +220,11 @@ function WhatIsSection() {
           What is FININTEL?
         </h2>
         <p className="mb-16 max-w-[700px] text-[14px] leading-relaxed text-muted-foreground">
-          FININTEL is an autonomous AI research platform that helps institutional
-          teams analyze financial markets from your terminal, API, or desktop.
+          FININTEL is an AI-powered financial intelligence platform in this monorepo: a
+          Python <code className="text-foreground/80">financial-mcp</code> server for
+          computation and orchestration, plus the <code className="text-foreground/80">aifin</code>{" "}
+          Next.js app for interactive research. The moat is execution quality and
+          trust layers — not raw indicator count.
         </p>
 
         <div className="grid grid-cols-1 gap-[1px] border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
@@ -227,10 +248,10 @@ function WhatIsSection() {
 
         <div className="mt-8">
           <a
-            href="#docs"
+            href="#getting-started"
             className="inline-flex items-center gap-2 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
           >
-            Read documentation
+            How to start locally
             <ArrowRight className="h-3 w-3" />
           </a>
         </div>
@@ -244,39 +265,39 @@ function CapabilitiesSection() {
   const capabilities = [
     {
       icon: BarChart3,
-      title: "Equity Research",
+      title: "Equity research skill",
       description:
-        "Automated DCF, comparable analysis, and earnings quality scoring across 10,000+ global equities.",
-    },
-    {
-      icon: Activity,
-      title: "Portfolio Analytics",
-      description:
-        "Factor decomposition, attribution analysis, and rebalancing signals for multi-asset portfolios.",
-    },
-    {
-      icon: FileText,
-      title: "Earnings Intelligence",
-      description:
-        "NLP-driven earnings call analysis with sentiment scoring, guidance tracking, and surprise detection.",
+        "Fixed workflow: yield curve signal, RSI, and credit spread analysis — routed from /earnings and ticker queries in chat.",
     },
     {
       icon: Globe,
-      title: "Macro Research",
+      title: "Macro regime skill",
       description:
-        "Cross-asset macro regime detection, yield curve analysis, and central bank policy impact modeling.",
+        "Parallel macro tools: yield curve, Taylor rule, and inflation momentum for regime-style queries.",
+    },
+    {
+      icon: FileText,
+      title: "Valuation",
+      description:
+        "Two-stage DCF engine (dcf_valuation_tool) with input validation on terminal growth, WACC, and cash flows.",
+    },
+    {
+      icon: Activity,
+      title: "Credit & risk",
+      description:
+        "Merton structural default probability, credit spread buckets, and post-run contradiction detection across macro vs technicals.",
     },
     {
       icon: Cpu,
-      title: "Quant Signals",
+      title: "Technical quant",
       description:
-        "Factor-based signal generation, momentum analysis, and statistical arbitrage opportunity screening.",
+        "RSI, MACD, and Bollinger engines with signal interpretation in synthesis — not raw indicator dumps.",
     },
     {
       icon: Zap,
-      title: "Real-time Alerts",
+      title: "Derivatives",
       description:
-        "Material event detection, filing alerts, and anomaly identification pushed to Slack, email, or webhook.",
+        "Black-Scholes-Merton pricing and Greeks via the black_scholes tool in the registry.",
     },
   ]
 
@@ -284,10 +305,11 @@ function CapabilitiesSection() {
     <section id="markets" className="border-b border-border">
       <div className="mx-auto max-w-[1200px] px-6 py-24">
         <h2 className="mb-3 text-[22px] font-bold tracking-tight text-foreground">
-          Built for institutional research
+          What ships today
         </h2>
         <p className="mb-16 text-[14px] text-muted-foreground">
-          Production-grade capabilities trusted by hedge funds, asset managers, and research teams.
+          Ten registered MCP tools, two bundled skills, and a chat layer that combines
+          engine output with OpenRouter (or local demo mode).
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -316,39 +338,39 @@ function MCPSection() {
   const mcpFeatures = [
     {
       icon: Plug,
-      title: "MCP Protocol",
+      title: "MCP SSE surface",
       description:
-        "Native Model Context Protocol support. Connect any MCP-compatible AI client directly to FININTEL's financial data layer.",
+        "FastMCP server mounted at /mcp (SSE). Tool registry loaded at startup from engines and MCP wrappers.",
     },
     {
       icon: Server,
-      title: "FININTEL MCP Server",
+      title: "Agent HTTP API",
       description:
-        "Run a local or hosted MCP server exposing financial tools — market data, SEC filings, earnings analysis — to any LLM.",
+        "POST /agent/run returns JSON with validation, synthesis, evidence, debate, and live_signals. POST /agent/run/stream emits SSE execution events.",
     },
     {
       icon: Workflow,
-      title: "Tool Composition",
+      title: "Skills",
       description:
-        "Compose financial tools into workflows. Chain market data → earnings NLP → risk scoring with simple MCP tool calls.",
+        "equity_research and macro_regime_detection bundle fixed tool plans on the same ExecutionRuntime used by the router.",
     },
     {
       icon: Radio,
-      title: "Streaming results",
+      title: "Streaming events",
       description:
-        "MCP streaming responses for long-running research tasks. Get partial results as agents complete each analysis step.",
+        "SSE stages: plan_ready, node_started, node_completed, validation, synthesis, final — suitable for progress UIs (stream endpoint ready; chat uses sync /run today).",
     },
     {
       icon: Lock,
-      title: "Authenticated access",
+      title: "Validation layer",
       description:
-        "OAuth 2.0 and API key authentication on the MCP server. Scope tool access per client or team.",
+        "FinancialRiskValidator flags macro–technical contradictions; ClaimValidator range-checks engine numerics.",
     },
     {
       icon: Database,
-      title: "Any LLM client",
+      title: "Market data (in progress)",
       description:
-        "Works with Claude Desktop, Cursor, Windsurf, OpenAI Assistants, and any MCP-compatible host.",
+        "MarketDataService and Yahoo/Alpha Vantage/FRED provider stubs exist; agent tools still use caller inputs or skill defaults until fully wired.",
     },
   ]
 
@@ -357,18 +379,17 @@ function MCPSection() {
       <MarginLines />
       <div className="relative mx-auto max-w-[1200px] px-6 py-24">
         <h2 className="mb-3 text-[22px] font-bold tracking-tight text-foreground">
-          MCP Server
+          Financial MCP server
         </h2>
         <p className="mb-4 max-w-[600px] text-[14px] text-muted-foreground">
-          FININTEL ships a native Model Context Protocol server — expose financial
-          intelligence tools directly to any AI client.
+          FastAPI app in <code className="text-foreground/80">financial-mcp/apps/mcp-server</code>.
+          Health check at GET /health. Default port 8000.
         </p>
 
         {/* Install snippet */}
         <div className="mb-16 inline-flex items-center gap-3 border border-border bg-card px-4 py-2.5">
           <code className="text-[13px] text-muted-foreground">
-            npx <span className="font-bold text-foreground">finintel</span> mcp
-            --port 3100
+            cd financial-mcp && <span className="font-bold text-foreground">make run</span>
           </code>
         </div>
 
@@ -391,10 +412,10 @@ function MCPSection() {
 
         <div className="mt-8">
           <a
-            href="#docs"
+            href="/chat"
             className="inline-flex items-center gap-2 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
           >
-            Read MCP documentation
+            Open research terminal
             <ArrowRight className="h-3 w-3" />
           </a>
         </div>
@@ -409,18 +430,17 @@ function PrivacySection() {
     <section className="border-b border-border">
       <div className="mx-auto max-w-[1200px] px-6 py-24">
         <h2 className="mb-3 text-[22px] font-bold tracking-tight text-foreground">
-          Built for privacy first
+          Local development model
         </h2>
         <p className="max-w-[700px] text-[14px] leading-relaxed text-muted-foreground">
-          FININTEL does not store any of your proprietary data, models, or research
-          output. Deploy on-premise, in your VPC, or air-gapped. Purpose-built for{" "}
-          <a
-            href="#enterprise"
-            className="underline underline-offset-4 transition-colors hover:text-foreground"
-          >
-            regulated environments
-          </a>
-          .
+          The MCP server and Next.js app are designed to run on your machine. Chat
+          sessions are held in browser state (Zustand); there is no hosted multi-tenant
+          backend in this repo. When{" "}
+          <code className="text-foreground/80">OPENROUTER_API_KEY</code> is set, prompts
+          go to OpenRouter for synthesis — otherwise the UI falls back to deterministic
+          demo responses. Check integration health at{" "}
+          <code className="text-foreground/80">GET /api/status</code> while the dev server
+          is running.
         </p>
       </div>
     </section>
@@ -432,27 +452,27 @@ function FAQSection() {
   const faqs = [
     {
       q: "What is FININTEL?",
-      a: "FININTEL is an autonomous AI research platform that helps institutional teams analyze financial markets, generate research reports, and monitor portfolio risk — all from the terminal or API.",
+      a: "A monorepo with two main parts: financial-mcp (Python FastAPI + MCP + agent pipeline) and aifin (Next.js research terminal). Together they produce structured equity-style reports with engine-backed evidence, not a standalone CLI product.",
     },
     {
-      q: "How do I use FININTEL?",
-      a: "Install via npx, pip, or Docker. Connect your data sources and run analysis commands. Output is structured JSON, Markdown, or direct API response.",
+      q: "How do I start locally?",
+      a: "1) In financial-mcp: pip install -r requirements.txt && make run (port 8000). 2) In aifin: npm install, copy .env.example to .env.local, add OPENROUTER_API_KEY (optional), npm run dev. 3) Open http://localhost:3000/chat. Run npm run test:integrations to verify MCP + app health.",
     },
     {
-      q: "What is the MCP server?",
-      a: "FININTEL ships a Model Context Protocol server that exposes financial intelligence tools to any MCP-compatible AI client — Claude Desktop, Cursor, and more.",
+      q: "What chat commands work?",
+      a: "Slash commands: /earnings, /risk, /macro, /portfolio, /market-analysis, /compare. Queries mentioning DCF, RSI, yield curve, valuation, or tickers like NVDA route the MCP agent (equity_research skill for earnings-style prompts).",
     },
     {
-      q: "What data sources are supported?",
-      a: "Bloomberg, Refinitiv, Alpha Vantage, Yahoo Finance, SEC EDGAR, and any REST/WebSocket endpoint. FININTEL also supports custom data adapters.",
+      q: "What does the MCP server expose?",
+      a: "Tools: dcf_valuation_tool, black_scholes, taylor_rule, yield_curve_signal, inflation_momentum_tool, merton_default_prob, credit_spread_analysis_tool, rsi_indicator, macd_indicator, bollinger_bands. APIs: /agent/run, /agent/run/stream, /health, /mcp.",
     },
     {
-      q: "Can I deploy on-premise?",
-      a: "Yes. FININTEL is designed for private deployment. Run in your VPC, on-premise infrastructure, or air-gapped environments.",
+      q: "Do I need an API key?",
+      a: "OpenRouter is optional — without OPENROUTER_API_KEY the chat uses local demo/mock narratives. For live LLM synthesis, add a key from openrouter.ai. MCP runs without external keys; market data provider keys (Alpha Vantage, FRED, Polygon) are optional in financial-mcp settings when you wire feeds.",
     },
     {
-      q: "What about data and privacy?",
-      a: "FININTEL processes data locally by default. No telemetry, no data collection. Enterprise deployments include SOC 2 Type II compliance and audit trails.",
+      q: "What is not implemented yet?",
+      a: "SEC filing ingestion, earnings call NLP, Slack alerts, hosted enterprise SSO, and automatic live market data fetch in the agent path are roadmap items. Market data providers exist as stubs; skills still use default inputs unless you pass inputs_by_tool to /agent/run.",
     },
   ]
 
@@ -501,45 +521,74 @@ function EnterpriseBanner() {
   return (
     <section id="enterprise" className="border-b border-border">
       <div className="mx-auto max-w-[1200px] px-6 py-16">
-        <div className="inline-flex items-center gap-3">
+        <div className="inline-flex flex-wrap items-center gap-3">
           <span className="border border-border bg-accent px-2 py-0.5 text-[11px] font-medium uppercase tracking-widest text-foreground">
-            Enterprise
+            Roadmap
           </span>
           <span className="text-[14px] text-muted-foreground">
-            Managed deployment, SSO, audit logs, and dedicated support.
+            OTEL export, vector memory, multi-agent swarms, and full market-data wiring —
+            see financial-mcp/docs/architecture.md.
           </span>
-          <a
-            href="#"
-            className="text-[13px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
-          >
-            Contact sales
-          </a>
         </div>
       </div>
     </section>
   )
 }
 
-/* ─── WAITLIST ─── */
-function WaitlistSection() {
+/* ─── GETTING STARTED ─── */
+function GettingStartedSection() {
+  const steps = [
+    {
+      step: "01",
+      title: "Start the MCP server",
+      body: "From the repo root: cd financial-mcp, pip install -r requirements.txt, then make run. Confirm GET http://127.0.0.1:8000/health returns status ok.",
+    },
+    {
+      step: "02",
+      title: "Configure the web app",
+      body: "cd aifin, npm install, cp .env.example .env.local. Set FINANCIAL_MCP_URL=http://127.0.0.1:8000. Optionally set OPENROUTER_API_KEY for live LLM (see openrouter.ai/keys).",
+    },
+    {
+      step: "03",
+      title: "Run the research terminal",
+      body: "npm run dev and open http://localhost:3000 — click Launch Terminal or go to /chat. Try /earnings NVIDIA investment thesis or a macro query with yield curve and RSI.",
+    },
+    {
+      step: "04",
+      title: "Verify integrations",
+      body: "With both servers running: npm run test:integrations (checks MCP /health, /agent/run, and app /api/status).",
+    },
+  ]
+
   return (
-    <section className="border-b border-border">
+    <section id="getting-started" className="border-b border-border">
       <div className="mx-auto max-w-[1200px] px-6 py-24">
         <h2 className="mb-3 text-[22px] font-bold tracking-tight text-foreground">
-          Be the first to know when we release new products
+          How to start
         </h2>
-        <p className="mb-8 text-[14px] text-muted-foreground">
-          Join the waitlist for early access.
+        <p className="mb-12 max-w-[640px] text-[14px] text-muted-foreground">
+          Prerequisites: Node.js 18+, Python 3.11+, and npm. Docker optional via{" "}
+          <code className="text-foreground/80">make docker-up</code> in financial-mcp.
         </p>
-        <div className="flex max-w-[480px] items-center border border-border">
-          <input
-            type="email"
-            placeholder="Email address"
-            className="flex-1 bg-transparent px-4 py-3 text-[13px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
-          />
-          <button className="border-l border-border bg-foreground px-6 py-3 text-[13px] font-medium text-background transition-colors hover:opacity-90">
-            Subscribe
-          </button>
+        <div className="grid grid-cols-1 gap-[1px] border border-border bg-border md:grid-cols-2">
+          {steps.map((s) => (
+            <div key={s.step} className="bg-background p-6">
+              <span className="mb-3 block font-mono text-[11px] text-muted-foreground/60">
+                {s.step}
+              </span>
+              <h3 className="mb-2 text-[14px] font-semibold text-foreground">{s.title}</h3>
+              <p className="text-[13px] leading-relaxed text-muted-foreground">{s.body}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8">
+          <a
+            href="/chat"
+            className="inline-flex items-center gap-2 border border-border bg-foreground px-5 py-2.5 text-[13px] font-medium text-background transition-opacity hover:opacity-90"
+          >
+            Launch Terminal
+            <ArrowRight className="h-3.5 w-3.5" />
+          </a>
         </div>
       </div>
     </section>
@@ -549,11 +598,11 @@ function WaitlistSection() {
 /* ─── FOOTER ─── */
 function Footer() {
   const footerLinks = [
-    { label: "GitHub", href: "#" },
-    { label: "Docs", href: "#" },
-    { label: "Changelog", href: "#" },
-    { label: "Discord", href: "#" },
-    { label: "X", href: "#" },
+    { label: "Terminal", href: "/chat" },
+    { label: "Getting started", href: "#getting-started" },
+    { label: "FAQ", href: "#docs" },
+    { label: "MCP", href: "#mcp" },
+    { label: "Architecture", href: "#enterprise" },
   ]
   const legalLinks = [
     { label: "Privacy", href: "#" },
@@ -613,8 +662,8 @@ export default function Page() {
         <MCPSection />
         <PrivacySection />
         <FAQSection />
+        <GettingStartedSection />
         <EnterpriseBanner />
-        <WaitlistSection />
       </main>
       <Footer />
     </div>

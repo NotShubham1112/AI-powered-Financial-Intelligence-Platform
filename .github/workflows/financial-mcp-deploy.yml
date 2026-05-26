@@ -1,0 +1,28 @@
+name: Financial MCP Deploy
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "financial-mcp/**"
+      - ".github/workflows/financial-mcp-deploy.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: financial-mcp
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build container
+        run: docker build -f infrastructure/docker/Dockerfile.mcp -t financial-mcp:${{ github.sha }} .
+
+      - name: Deploy placeholder
+        run: |
+          echo "Image financial-mcp:${{ github.sha }} built successfully."
+          echo "Wire this job to your registry (ECR/GCR) and orchestrator (ECS/K8s)."

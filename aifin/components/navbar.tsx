@@ -7,10 +7,10 @@ import { useEffect, useState } from "react"
 
 const navLinks = [
   { label: "Research", href: "#research" },
-  { label: "Markets", href: "#markets" },
+  { label: "Capabilities", href: "#markets" },
   { label: "MCP", href: "#mcp" },
-  { label: "Docs", href: "#docs" },
-  { label: "Enterprise", href: "#enterprise" },
+  { label: "Start", href: "#getting-started" },
+  { label: "FAQ", href: "#docs" },
 ]
 
 function ThemeToggle() {
@@ -64,7 +64,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <Link
-            href="#terminal"
+            href="/chat"
             className="inline-flex items-center gap-2 border border-border px-4 py-1.5 text-[13px] text-foreground transition-colors hover:bg-accent"
           >
             <Terminal className="h-3.5 w-3.5" />

@@ -1,0 +1,15 @@
+numpy>=1.26
+scipy>=1.11
+pydantic>=2.5
+pydantic-settings>=2.1
+fastapi>=0.109
+uvicorn[standard]>=0.27
+mcp>=1.0
+structlog>=24.1
+httpx>=0.26
+redis>=5.0
+celery>=5.3
+pytest>=8.0
+pytest-asyncio>=0.23
+hypothesis>=6.98
+ruff>=0.2
