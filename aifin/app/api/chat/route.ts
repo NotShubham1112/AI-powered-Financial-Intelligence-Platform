@@ -16,26 +16,46 @@ import {
 import { toOpenRouterMessages } from "@/lib/openrouter-messages"
 import { DEFAULT_OPENROUTER_MODEL, resolveModel } from "@/lib/openrouter"
 import { inferenceRuntime } from "@/core/models/runtime"
+import { classifyIntent, shouldUseAgentPipeline, agentPipeline } from "@/core/agent"
 
 export const dynamic = "force-dynamic"
 
-const COMPACT_SYSTEM = `You are FININTEL institutional research terminal.
+const INSTITUTIONAL_SYSTEM = `You are the FININTEL Institutional Research Terminal, a high-fidelity financial intelligence system.
 
-STRUCTURE: Executive Summary · Investment Thesis · Valuation · Macro Risks · Quant · Scenarios.
+Your role is SYNTHESIS ONLY. Planning, data retrieval, and tool execution are handled by the agent engine.
 
-EVIDENCE RULES (mandatory):
-- Every quantitative claim MUST cite an MCP evidence-bound claim (source + confidence) OR be tagged [Unverified].
-- NEVER invent market share %, developer counts, or efficiency multiples without engine backing.
-- Reconcile bull vs risk thesis when contradictions are provided — do not contradict yourself silently.
+Given analysis results from previous steps, produce a comprehensive research report.
 
-STYLE: Concise bullets/tables. Signal interpretation over raw indicators. Probabilistic scenarios when provided.
-No chain-of-thought. Max 2 short paragraphs per section unless user requests detail.`
+STRUCTURE:
+- ## Strategic Overview: Deep dive into the core thesis using provided data.
+- ## Quantitative Analysis: MANDATORY tables with row/column data AND interactive charts (bar, line, pie, area).
+- ## Evidence Registry: Cite specific claims with source + confidence when available.
+- ## Risk & Counter-Thesis: Detailed analysis of what could go wrong.
+- ## Final Executive Summary: A concise synthesis of the findings.
+
+REQUIRED ARTIFACT FORMAT for every report:
+{
+  "executive_summary": "string",
+  "key_metrics": [{ "label": "string", "value": "string", "subtext": "string?" }],
+  "charts": [{ "type": "bar|line|pie|area|radial|horizontal-bar|donut", "title": "string", "data": [...] }],
+  "tables": [{ "title": "string", "data": { "columns": ["string"], "rows": [{}] } }],
+  "sections": [{ "title": "string", "content": [{ "type": "paragraph|heading|list|blockquote", "content": "string" }] }]
+}
+
+RULES:
+- ALWAYS generate at least ONE chart AND one table with numerical data from MCP evidence.
+- Do NOT include [PLAN] blocks or planning artifacts.
+- Do NOT call tools, MCP, or APIs. You are a synthesis engine only.
+- Every quantitative claim MUST cite a source or be tagged [Unverified].
+- Use professional, clinical financial language.
+- Favor tables, charts, and structured lists over long paragraphs.`
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
     const rawMessages = body.messages ?? []
     const model = resolveModel(body.model ?? DEFAULT_OPENROUTER_MODEL)
+    const agentEnabled = body.agentEnabled ?? false
 
     if (!process.env.OPENROUTER_API_KEY) {
       console.warn("OPENROUTER_API_KEY is not defined. Falling back to mock responses.")
@@ -60,19 +80,27 @@ export async function POST(req: Request) {
               .join("\n")
           : ""
 
+    // Intent routing: agent pipeline vs chat pipeline
+    const intent = classifyIntent(lastUserText ?? "", agentEnabled)
+    if (shouldUseAgentPipeline(intent)) {
+      const apiKey = process.env.OPENROUTER_API_KEY
+      const referer = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+      return createAgentStreamResponse(lastUserText ?? "", apiKey, model, referer, uiMessages)
+    }
+
     let mcpResult = null
     if (lastUserText && shouldInvokeMcp(lastUserText)) {
       mcpResult = await runMcpAgent(lastUserText, resolveMcpRunOptions(lastUserText))
       if (mcpResult) {
         modelMessages.unshift({
           role: "system",
-          content: `${COMPACT_SYSTEM}\n\n## MCP Engine Results\n${formatMcpContext(mcpResult)}`,
+          content: `${INSTITUTIONAL_SYSTEM}\n\n## MCP Engine Results\n${formatMcpContext(mcpResult)}`,
         })
       } else {
-        modelMessages.unshift({ role: "system", content: COMPACT_SYSTEM })
+        modelMessages.unshift({ role: "system", content: INSTITUTIONAL_SYSTEM })
       }
     } else {
-      modelMessages.unshift({ role: "system", content: COMPACT_SYSTEM })
+      modelMessages.unshift({ role: "system", content: INSTITUTIONAL_SYSTEM })
     }
 
     const apiKey = process.env.OPENROUTER_API_KEY
@@ -97,6 +125,23 @@ export async function POST(req: Request) {
 type MockFallbackOptions = {
   reason?: string
   triedModels?: string[]
+}
+
+function createAgentStreamResponse(
+  query: string,
+  apiKey: string,
+  model: string,
+  referer: string,
+  uiMessages: UIMessage[]
+): Response {
+  const stream = createUIMessageStream({
+    originalMessages: uiMessages,
+    execute: async ({ writer }) => {
+      const textId = generateId()
+      await agentPipeline.streamAgentResponse({ query, apiKey, model, referer }, writer, textId)
+    },
+  })
+  return createUIMessageStreamResponse({ stream })
 }
 
 function mockUIMessageStream(

@@ -1,5 +1,5 @@
 from mcp.server.fastmcp import FastMCP
-from engines.derivatives.black_scholes import BlackScholesInput, black_scholes
+from engines.derivatives.black_scholes import BlackScholesInput, black_scholes as black_scholes_engine
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -17,7 +17,7 @@ def register_derivatives_tools(mcp: FastMCP) -> None:
         option_type: str = "call",
     ) -> dict:
         """Black-Scholes-Merton option price and Greeks."""
-        result = black_scholes(
+        result = black_scholes_engine(
             BlackScholesInput(
                 spot=spot,
                 strike=strike,

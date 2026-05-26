@@ -16,7 +16,7 @@ class EvidenceRegistry:
 
     CLAIM_TEMPLATES: Dict[str, List[tuple[str, str, str]]] = {
         "yield_curve_signal": [
-            ("spread_bps", "10Y–2Y yield spread is {value} bps", "spread_bps"),
+            ("spread_bps", "10Y-2Y yield spread is {value} bps", "spread_bps"),
             ("recession_signal", "Yield curve recession signal: {value}", "recession_signal"),
             ("curve_state", "Yield curve state: {value}", "curve_state"),
         ],
@@ -91,7 +91,7 @@ class EvidenceRegistry:
             claim = EvidenceClaim(
                 claim_id=str(uuid.uuid4())[:8],
                 claim=claim_text,
-                source=f"{source} · {tool_name}",
+                source=f"{source} - {tool_name}",
                 confidence=conf if not validation_flags else round(conf * 0.85, 4),
                 freshness_days=freshness,
                 tool_name=tool_name,
@@ -108,7 +108,7 @@ class EvidenceRegistry:
                     EvidenceClaim(
                         claim_id=str(uuid.uuid4())[:8],
                         claim=f"{tool_name}: {key} = {value}",
-                        source=f"{source} · {tool_name}",
+                        source=f"{source} - {tool_name}",
                         confidence=conf,
                         freshness_days=freshness,
                         tool_name=tool_name,

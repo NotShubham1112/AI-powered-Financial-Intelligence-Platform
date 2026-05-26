@@ -9,7 +9,7 @@ export function MetadataLabel({ children, className }: MetadataLabelProps) {
   return (
     <span
       className={cn(
-        "font-mono text-[10px] uppercase tracking-wider text-muted-foreground/60",
+        "text-[10px] uppercase tracking-wider text-muted-foreground/60 font-medium",
         className
       )}
     >

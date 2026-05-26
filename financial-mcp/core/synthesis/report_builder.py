@@ -73,15 +73,15 @@ class InstitutionalReportBuilder:
                 if sig == "overbought":
                     parts.append(
                         f"Momentum remains constructive but RSI {rsi:.0f} and potential breadth "
-                        "divergence suggest late-stage acceleration risk — tighten stops vs blind add."
+                        "divergence suggest late-stage acceleration risk - tighten stops vs blind add."
                     )
                 elif sig == "oversold":
                     parts.append(
-                        f"RSI {rsi:.0f} in oversold territory — mean-reversion setup possible "
+                        f"RSI {rsi:.0f} in oversold territory - mean-reversion setup possible "
                         "if macro headwinds do not intensify."
                     )
                 else:
-                    parts.append(f"RSI {rsi:.0f} neutral — momentum neither stretched nor washed out.")
+                    parts.append(f"RSI {rsi:.0f} neutral - momentum neither stretched nor washed out.")
             if nr.tool_name == "macd_indicator":
                 cross = nr.output.get("crossover")
                 if cross == "bullish_cross":
@@ -91,42 +91,47 @@ class InstitutionalReportBuilder:
                     )
                 elif cross == "bearish_cross":
                     parts.append(
-                        "MACD bearish crossover flags momentum deterioration — "
+                        "MACD bearish crossover flags momentum deterioration - "
                         "reduce beta or hedge if paired with macro stress."
                     )
-        return " ".join(parts) if parts else "Quant engines not invoked — avoid generic indicator reporting."
+        return " ".join(parts) if parts else "Quant engines not invoked - avoid generic indicator reporting."
+
+    SCENARIO_WEIGHTS = {
+        "bull_weighted": ({"bull": 0.45, "base": 0.40, "bear": 0.15}, 12.0),
+        "risk_weighted": ({"bull": 0.20, "base": 0.45, "bear": 0.35}, -2.0),
+        "balanced": ({"bull": 0.30, "base": 0.45, "bear": 0.25}, 5.0),
+    }
+    CI_WIDTH_FACTOR = 20.0
+    VAR_BASE = -12.0
+    VAR_CONTRADICTION_PENALTY = 8.0
 
     def _probabilistic_scenarios(
         self, validation: Dict[str, Any], debate: Dict[str, Any]
     ) -> Dict[str, Any]:
         conf = debate.get("adjusted_confidence", validation.get("confidence", 0.5))
         resolution = debate.get("resolution", "balanced")
-        if resolution == "bull_weighted":
-            weights = {"bull": 0.45, "base": 0.40, "bear": 0.15}
-            expected_return_pct = 12.0
-        elif resolution == "risk_weighted":
-            weights = {"bull": 0.20, "base": 0.45, "bear": 0.35}
-            expected_return_pct = -2.0
-        else:
-            weights = {"bull": 0.30, "base": 0.45, "bear": 0.25}
-            expected_return_pct = 5.0
+        weights, expected_return_pct = self.SCENARIO_WEIGHTS.get(
+            resolution, self.SCENARIO_WEIGHTS["balanced"]
+        )
 
         return {
             "probability_weights": weights,
             "expected_return_pct": expected_return_pct,
             "confidence_interval_90": [
-                round(expected_return_pct - 18 * (1 - conf), 1),
-                round(expected_return_pct + 22 * conf, 1),
+                round(expected_return_pct - self.CI_WIDTH_FACTOR * (1 - conf), 1),
+                round(expected_return_pct + self.CI_WIDTH_FACTOR * conf, 1),
             ],
-            "downside_var_95_pct": round(-12 - 8 * len(validation.get("contradictions", [])), 1),
-            "monte_carlo_note": "Sensitivity driven by macro–technical alignment and credit bucket",
+            "downside_var_95_pct": round(
+                self.VAR_BASE - self.VAR_CONTRADICTION_PENALTY * len(validation.get("contradictions", [])), 1
+            ),
+            "monte_carlo_note": "Sensitivity driven by macro-technical alignment and credit bucket",
         }
 
     def _market_narrative(self, validation: Dict[str, Any], debate: Dict[str, Any]) -> Dict[str, str]:
         flags = validation.get("flags", [])
         crowding = "macro_technical_divergence" in flags
         return {
-            "crowding_risk": "Elevated — macro and technical signals disagree" if crowding else "Moderate",
+            "crowding_risk": "Elevated - macro and technical signals disagree" if crowding else "Moderate",
             "narrative_saturation": "Monitor AI capex narrative fatigue vs hyperscaler spend persistence",
             "positioning_risk": "Risk-weighted" if debate.get("resolution") == "risk_weighted" else "Neutral",
             "reflexivity": "Premium multiple vulnerable to narrative reversal if earnings revisions disappoint",

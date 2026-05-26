@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from mcp.server.fastmcp import FastMCP
 from .settings import settings
-from .logging import configure_logging
+from .log_config import configure_logging
 from registry.loader import load_all_tools
 
 configure_logging()

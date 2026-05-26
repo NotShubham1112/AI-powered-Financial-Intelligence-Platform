@@ -1,4 +1,4 @@
-"""Model routing policy — interactive vs background."""
+"""Model routing policy - interactive vs background."""
 from core.models.config import (
     DEFAULT_INTERACTIVE,
     FAST_INTERACTIVE_MODELS,

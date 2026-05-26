@@ -35,7 +35,7 @@ class FinancialRiskValidator:
         if recession is True and credit_bucket in ("investment_grade_tight", "investment_grade"):
             flags.append("credit_complacent_vs_macro")
             contradictions.append(
-                "Recession macro signal alongside tight credit spreads — monitor for lag."
+                "Recession macro signal alongside tight credit spreads - monitor for lag."
             )
 
         if signals.get("default_probability", 0) > 0.15 and credit_bucket == "investment_grade_tight":

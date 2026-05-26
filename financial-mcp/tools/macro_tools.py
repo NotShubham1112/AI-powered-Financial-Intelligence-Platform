@@ -34,7 +34,7 @@ def register_macro_tools(mcp: FastMCP) -> None:
         ten_year_yield: float,
         two_year_yield: float,
     ) -> dict:
-        """10Y–2Y spread and recession-style curve state."""
+        """10Y-2Y spread and recession-style curve state."""
         result = compute_yield_curve_signal(
             YieldSpreadInput(
                 ten_year_yield=ten_year_yield,

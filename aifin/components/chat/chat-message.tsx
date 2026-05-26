@@ -10,8 +10,15 @@ import { ExportButtons } from "./export-buttons"
 import { ToolTrace } from "./tool-trace"
 import { IntelligencePanel } from "./intelligence-panel"
 import { ResearchOutput } from "./research-output"
+import { ResearchPlan } from "./research-plan"
 import type { EvidenceClaim, ExecutionMeta, LiveSignal, McpDebate } from "@/stores/chat-store"
+import {
+  P,
+  Small,
+} from "@/components/ui/typography"
 import { sanitizeAssistantContent } from "@/lib/sanitize-assistant-content"
+import { MarkdownRenderer } from "./markdown-renderer"
+import { tryValidateArtifact } from "@/components/research"
 
 interface ChatMessageProps {
   message: {
@@ -40,14 +47,17 @@ interface ChatMessageProps {
 export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   const isUser = message.role === "user"
 
-  const { parsedCharts, contentWithoutCharts } = useMemo(() => {
+  const { parsedCharts, contentWithoutCharts, completedSteps, isArtifact } = useMemo(() => {
     if (isUser) {
-      return { parsedCharts: [], contentWithoutCharts: message.content }
+      return { parsedCharts: [], contentWithoutCharts: message.content, completedSteps: [], isArtifact: false }
     }
 
     const chartRegex = /```chart:(bar|line|area|pie)\s*\n([\s\S]*?)```/g
     const charts: ChartData[] = []
     let cleaned = sanitizeAssistantContent(message.content)
+
+    // Strip [AGENT_PLAN] blocks (rendered separately by ResearchPlan)
+    cleaned = cleaned.replace(/\[AGENT_PLAN\][\s\S]*?\[\/AGENT_PLAN\]/g, "")
 
     let match
     while ((match = chartRegex.exec(message.content)) !== null) {
@@ -68,7 +78,28 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
       cleaned = cleaned.replace(match[0], "")
     }
 
-    return { parsedCharts: charts, contentWithoutCharts: cleaned.trim() }
+    // Count completed agent steps from "Step N:" headers in content
+    const stepHeaderRegex = /### Step (\d+):/g
+    let stepCount = 0
+    let stepMatch
+    while ((stepMatch = stepHeaderRegex.exec(cleaned)) !== null) {
+      const num = parseInt(stepMatch[1], 10)
+      if (num > stepCount) stepCount = num
+    }
+    const completedSteps = stepCount > 0 ? Array.from({ length: stepCount }, (_, i) => String(i + 1)) : []
+
+    // Detect if content is a ResearchArtifact JSON block
+    const trimmed = cleaned.trim()
+    let isArtifact = false
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        isArtifact = tryValidateArtifact(JSON.parse(trimmed)) !== null
+      } catch {
+        isArtifact = false
+      }
+    }
+
+    return { parsedCharts: charts, contentWithoutCharts: cleaned.trim(), completedSteps, isArtifact }
   }, [message.content, isUser])
 
   return (
@@ -81,12 +112,20 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
       </div>
       <div className={cn("space-y-3", isUser && "border-l-2 border-muted pl-4")}>
         {isUser ? (
-          <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground">
-            {message.content}
-          </p>
+          <div className="whitespace-pre-wrap text-foreground">
+            <MarkdownRenderer content={message.content} />
+          </div>
         ) : (
           <div className="space-y-2">
             {isStreaming && !message.content && <ThinkingAnimation />}
+
+            {/* Agent plan visualization */}
+            {contentWithoutCharts && (
+              <ResearchPlan
+                content={contentWithoutCharts}
+                completedSteps={completedSteps}
+              />
+            )}
 
             {(message.executionMeta ||
               message.evidence?.length ||
@@ -111,8 +150,14 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
               </div>
             )}
 
-            {contentWithoutCharts && (
+            {contentWithoutCharts && isArtifact && (
               <ResearchOutput content={contentWithoutCharts} />
+            )}
+
+            {contentWithoutCharts && !isArtifact && (
+              <div className="space-y-4">
+                <MarkdownRenderer content={contentWithoutCharts} />
+              </div>
             )}
 
             {parsedCharts.map((chart, i) => (

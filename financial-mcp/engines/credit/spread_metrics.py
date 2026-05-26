@@ -18,7 +18,7 @@ class CreditSpreadOutput(BaseModel):
 def credit_spread_analysis(inp: CreditSpreadInput) -> CreditSpreadOutput:
     spread = max(inp.bond_yield - inp.risk_free_yield, 0.0)
     spread_bps = round(spread * 10000, 2)
-    # λ ≈ s / ((1-R) * T) — simplified CDS hazard approximation
+    # hazard_rate = spread / ((1 - recovery) * T) -- simplified CDS hazard approximation
     hazard = spread / ((1 - inp.recovery_rate) * inp.years_to_maturity)
 
     if spread_bps < 100:

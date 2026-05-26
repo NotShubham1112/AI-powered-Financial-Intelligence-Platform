@@ -71,7 +71,7 @@ class AgentRouter:
         return recs[0] if recs else None
 
     def plan_tool_chain(self, query: str, max_steps: int = 3) -> List[ToolRecommendation]:
-        """Ordered tools for multi-step agent workflows (e.g. macro → valuation)."""
+        """Ordered tools for multi-step agent workflows (e.g. macro -> valuation)."""
         recs = self.recommend_tools(query, max_results=max_steps * 2)
         seen_categories: set[str] = set()
         chain: List[ToolRecommendation] = []

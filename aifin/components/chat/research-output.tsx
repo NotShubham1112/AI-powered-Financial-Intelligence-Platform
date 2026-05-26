@@ -4,12 +4,17 @@ import * as React from "react"
 import { TerminalPanel } from "@/design-system/components"
 import { MetadataLabel } from "@/design-system/components"
 import { cn } from "@/lib/utils"
-import * as Typography from "@/components/ui/typography"
-import { 
-  ArtifactRenderer, 
+import {
+  H2,
+  P,
+  List,
+  ListItem
+} from "@/components/ui/typography"
+import {
+  ArtifactRenderer,
   tryValidateArtifact,
   ResearchLayout,
-  ReportTypography 
+  ReportTypography
 } from "@/components/research"
 
 type Section = {
@@ -92,9 +97,9 @@ function SectionBlock({ title, body }: { title: string | null; body: string }) {
   return (
     <div>
       {title && (
-        <h2 className="mb-4 border-b border-border pb-2 text-2xl font-semibold text-foreground">
+        <H2 className="mb-4 pb-2">
           {title}
-        </h2>
+        </H2>
       )}
 
       <div className="space-y-4">
@@ -130,18 +135,18 @@ function ProseBlock({ text }: { text: string }) {
         }
 
         if (/^[-*] /m.test(trimmed)) {
-          const items = trimmed.split("\n").filter((l) => /^[-*] /.test(l))
+          const items = trimmed.split("\n").filter((l) => l.trim().startsWith("-") || l.trim().startsWith("*"))
           return (
-            <ul key={i} className="space-y-1.5 border-l border-border pl-4 text-muted-foreground">
+            <List key={i}>
               {items.map((item, j) => (
-                <li
+                <ListItem
                   key={j}
                   className="text-sm leading-relaxed text-muted-foreground"
                 >
-                  <InlineText text={item.replace(/^[-*] /, "")} />
-                </li>
+                  <InlineText text={item.trim().replace(/^[-*]\s*/, "")} />
+                </ListItem>
               ))}
-            </ul>
+            </List>
           )
         }
 
@@ -154,9 +159,9 @@ function ProseBlock({ text }: { text: string }) {
         }
 
         return (
-          <p key={i} className="text-muted-foreground leading-7 text-base">
+          <P key={i} className="leading-7 text-base">
             <InlineText text={trimmed} />
-          </p>
+          </P>
         )
       })}
     </div>

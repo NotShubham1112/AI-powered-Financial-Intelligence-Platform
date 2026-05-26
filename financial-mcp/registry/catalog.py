@@ -43,7 +43,7 @@ TOOL_CATALOG: List[Dict[str, Any]] = [
     {
         "name": "yield_curve_signal",
         "category": "macro",
-        "description": "10Y–2Y yield spread and curve recession signal",
+        "description": "10Y-2Y yield spread and curve recession signal",
         "input_schema": "YieldSpreadToolInput",
         "output_schema": "YieldSpreadOutput",
         "requires_market_data": True,

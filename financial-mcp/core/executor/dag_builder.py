@@ -61,7 +61,7 @@ def build_fan_in_dag(
     aggregate_tool: tuple[str, Dict[str, Any]],
     query: str = "",
 ) -> ExecutionDAG:
-    """Parallel research tools → single synthesis/validation node."""
+    """Parallel research tools -> single synthesis/validation node."""
     dag = ExecutionDAG(query=query)
     parallel_ids: List[str] = []
     for i, (tool_name, params) in enumerate(parallel_tools):

@@ -125,6 +125,7 @@ export class FaultTolerantInferenceRuntime {
         delta: encodeMcpMetadata({
           runId: req.mcpResult.run_id,
           ...meta,
+          toolTraces: meta.toolTraces as Array<{ id: string; toolName: string; status: "complete"; message: string }>,
         }),
       })
     }

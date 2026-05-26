@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { ChatMessage } from "./chat-message"
-import { ThinkingAnimation } from "./thinking-animation"
+import { ThinkingAnimation, type TerminalLoaderPhase } from "./thinking-animation"
 import { RuntimeStatusBar } from "./runtime-status"
 import { TerminalBadge, MetadataLabel } from "@/design-system/components"
 import { typography } from "@/design-system/typography"

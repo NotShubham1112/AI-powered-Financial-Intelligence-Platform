@@ -9,7 +9,7 @@ from market_data.normalization.schemas import OHLCV, YieldCurvePoint
 
 class MarketDataService:
     """
-    Unified market data facade — normalizes provider outputs for agents and skills.
+    Unified market data facade - normalizes provider outputs for agents and skills.
     """
 
     def __init__(self, providers: Optional[Dict[str, MarketDataProvider]] = None) -> None:

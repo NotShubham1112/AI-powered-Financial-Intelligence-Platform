@@ -73,6 +73,12 @@ export interface RuntimeStatus {
   lastHeartbeat: number
 }
 
+export interface AgentTodo {
+  id: string
+  title: string
+  status: "not-started" | "in-progress" | "completed"
+}
+
 export interface ChatSession {
   id: string
   title: string
@@ -80,6 +86,8 @@ export interface ChatSession {
   createdAt: number
   updatedAt: number
 }
+
+export type AgentModeToggle = "auto" | "reason" | "fast" | "deep"
 
 interface ChatState {
   sessions: ChatSession[]
@@ -94,6 +102,16 @@ interface ChatState {
   setSelectedModel: (model: string) => void
   runtimeStatus: RuntimeStatus | null
   setRuntimeStatus: (status: RuntimeStatus | null) => void
+  agentTodos: AgentTodo[]
+  setAgentTodos: (todos: AgentTodo[]) => void
+  addAgentTodo: (todo: AgentTodo) => void
+  updateAgentTodo: (id: string, updates: Partial<AgentTodo>) => void
+
+  // Agent mode state
+  agentEnabled: boolean
+  setAgentEnabled: (enabled: boolean) => void
+  agentMode: AgentModeToggle
+  setAgentMode: (mode: AgentModeToggle) => void
 
   getActiveSession: () => ChatSession | undefined
   getActiveMessages: () => Message[]
@@ -153,6 +171,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setSelectedModel: (model) => set({ selectedModel: model }),
   runtimeStatus: null,
   setRuntimeStatus: (runtimeStatus) => set({ runtimeStatus }),
+  agentTodos: [],
+  setAgentTodos: (agentTodos) => set({ agentTodos }),
+  addAgentTodo: (todo) =>
+    set((state) => ({
+      agentTodos: [...state.agentTodos, todo],
+    })),
+  updateAgentTodo: (id, updates) =>
+    set((state) => ({
+      agentTodos: state.agentTodos.map((t) =>
+        t.id === id ? { ...t, ...updates } : t
+      ),
+    })),
+  agentEnabled: false,
+  setAgentEnabled: (agentEnabled) => set({ agentEnabled }),
+  agentMode: "auto",
+  setAgentMode: (agentMode) => set({ agentMode }),
 
   getActiveSession: () => {
     const { sessions, activeSessionId } = get()

@@ -18,5 +18,6 @@ async def with_retry(
             if attempt >= max_retries:
                 break
             await asyncio.sleep(backoff_seconds * (2**attempt))
-    assert last_error is not None
+    if last_error is None:
+        raise RuntimeError("Retry exhausted with no captured error (unreachable)")
     raise last_error

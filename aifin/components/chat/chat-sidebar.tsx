@@ -54,7 +54,7 @@ export function ChatSidebar() {
                         type="button"
                         onClick={() => setActiveSession(session.id)}
                         className={cn(
-                          "group flex items-center gap-2 px-3 py-1.5 text-left font-mono text-[11px] transition-colors",
+                          "group flex items-center gap-2 px-3 py-1.5 text-left text-[11px] transition-colors",
                           session.id === activeSessionId
                             ? "bg-accent text-foreground"
                             : "text-muted-foreground/70 hover:bg-accent/50 hover:text-foreground"
@@ -75,7 +75,7 @@ export function ChatSidebar() {
                 )}
 
                 {item.id === "artifacts" && (
-                  <div className="px-3 py-2 font-mono text-[11px] text-muted-foreground/40">
+                  <div className="px-3 py-2 text-[11px] text-muted-foreground/40 font-medium">
                     no artifacts indexed
                   </div>
                 )}

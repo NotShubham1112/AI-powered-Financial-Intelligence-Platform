@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { validateArtifact } from "./schemas"
+import { tryValidateArtifact } from "./schemas"
 import { mapArtifactToComponents } from "./mcp-service"
 import { TypographyLarge } from "./typography"
 
@@ -26,18 +26,24 @@ export function ArtifactRenderer({
 
   React.useEffect(() => {
     try {
-      // 1. Validate artifact matches schema
-      const validated = validateArtifact(artifact)
+      // 1. Validate artifact matches schema (graceful fallback)
+      const validated = tryValidateArtifact(artifact)
 
-      // 2. Map to React components
+      if (!validated) {
+        setError(null)
+        setComponents([])
+        return
+      }
+
+      // 2. Map to React components (per-item validation, skips invalid items)
       const rendered = mapArtifactToComponents(validated)
 
       // 3. Extract components for rendering
       setComponents(rendered.map((item) => item.component))
       setError(null)
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Invalid artifact"
-      setError(message)
+      const message = err instanceof Error ? err.message : "Unknown error"
+      setError(`Render error: ${message}`)
       setComponents([])
     }
   }, [artifact])
@@ -45,14 +51,28 @@ export function ArtifactRenderer({
   if (error) {
     return (
       <div className="border border-red-900 rounded-lg bg-black p-6 mb-6">
-        <TypographyLarge>Artifact Rendering Error</TypographyLarge>
-        <p className="text-red-400 text-sm mt-2">{error}</p>
+        <TypographyLarge>Report Overview</TypographyLarge>
+        <div className="text-zinc-400 text-sm mt-2 whitespace-pre-wrap font-mono">
+          {typeof artifact === "object" && artifact !== null
+            ? JSON.stringify(artifact, null, 2)
+            : String(artifact ?? "No data")}
+        </div>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
+      {components.length === 0 && (
+        <div className="border border-zinc-800 rounded-lg bg-black p-6 mb-6">
+          <TypographyLarge>Analysis Result</TypographyLarge>
+          <div className="text-zinc-400 text-sm mt-2 whitespace-pre-wrap font-mono">
+            {typeof artifact === "object" && artifact !== null
+              ? JSON.stringify(artifact, null, 2)
+              : String(artifact ?? "No data")}
+          </div>
+        </div>
+      )}
       {components.map((component, idx) => (
         <div key={idx} className="animate-in fade-in duration-500">
           {component}

@@ -31,7 +31,7 @@ export function ChatNavbar() {
         {isSidebarOpen && (
           <>
             <span className="text-muted-foreground/30">/</span>
-            <span className="font-mono text-[11px] text-muted-foreground/60">workspace</span>
+            <span className="text-[11px] text-muted-foreground/60 font-medium">workspace</span>
           </>
         )}
       </div>
@@ -39,7 +39,7 @@ export function ChatNavbar() {
       <div className="flex items-center gap-2">
         <div className="hidden items-center gap-2 border border-border px-2 py-1 md:flex">
           <Activity className="h-3 w-3 text-muted-foreground/50" />
-          <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/60">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-medium">
             runtime idle
           </span>
         </div>

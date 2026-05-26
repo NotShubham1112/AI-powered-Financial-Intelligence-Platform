@@ -21,31 +21,34 @@ class BondOutput(BaseModel):
     ytm: float
 
 def bond_price_duration(input: BondInput) -> BondOutput:
-    # day count: 30/360 US
     d1 = input.settlement_date
     d2 = input.maturity_date
-    # time to maturity in years
-    T = (d2 - d1).days / 365.25
     freq = input.coupon_frequency
     y = input.yield_to_maturity
     coupon = input.face_value * input.coupon_rate / freq
-    periods = int(T * freq) + 1  # approximate
-    # cash flow times
-    t = np.arange(1, periods+1) / freq
+    
+    # Compute exact number of coupon periods from settlement to maturity
+    # Uses Actual/365.25 day count
+    T = (d2 - d1).days / 365.25
+    remaining_periods = max(1, int(round(T * freq)))
+    periods = remaining_periods
+    
+    # cash flow times (years from settlement)
+    t = np.arange(1, periods + 1) / freq
     cf = np.full(periods, coupon)
     cf[-1] += input.face_value
     
-    disc = (1 + y/freq) ** (-t * freq)  # discount factors
+    disc = (1 + y / freq) ** (-t * freq)
     pv = cf * disc
     price = np.sum(pv)
     
     # Duration & Convexity
     mac_dur = np.sum(t * pv) / price
-    mod_dur = mac_dur / (1 + y/freq)
-    convex = np.sum(pv * t * (t + 1/freq)) / (price * (1 + y/freq)**2)
+    mod_dur = mac_dur / (1 + y / freq)
+    convex = np.sum(pv * t * (t + 1 / freq)) / (price * (1 + y / freq) ** 2)
     
-    # Accrued interest (simplified)
-    accrued = 0.0  # assume settlement on coupon date
+    # Accrued interest (simplified - assumes settlement on coupon date)
+    accrued = 0.0
     return BondOutput(
         price=round(price, 4),
         macaulay_duration=round(mac_dur, 4),

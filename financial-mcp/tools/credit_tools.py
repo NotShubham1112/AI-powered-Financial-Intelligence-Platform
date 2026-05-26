@@ -39,7 +39,7 @@ def register_credit_tools(mcp: FastMCP) -> None:
     ) -> dict:
         """Credit spread (bps), hazard approximation, and rating bucket."""
         if bond_yield < risk_free_yield:
-            raise ValueError("Bond yield must be >= risk-free yield for spread analysis.")
+            logger.warning("bond_yield below risk_free_yield, clamping spread to zero")
         result = credit_spread_analysis(
             CreditSpreadInput(
                 bond_yield=bond_yield,

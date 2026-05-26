@@ -19,7 +19,7 @@ class ClaimValidator:
     }
 
     HALLUCINATION_PATTERNS = [
-        re.compile(r"\b\d{1,3}[-–]\d{1,3}%\s+market\s+share\b", re.I),
+        re.compile(r"\b\d{1,3}[--]\d{1,3}%\s+market\s+share\b", re.I),
         re.compile(r"\b\d+(\.\d+)?[Mm]\+?\s+developers\b", re.I),
         re.compile(r"\b\d+x\s+(inference|efficiency)\b", re.I),
     ]

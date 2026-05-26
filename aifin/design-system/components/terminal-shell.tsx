@@ -11,7 +11,7 @@ export function TerminalShell({ children, className }: TerminalShellProps) {
   return (
     <div
       className={cn(
-        "min-h-screen bg-background text-foreground font-mono antialiased",
+        "min-h-screen bg-background text-foreground font-sans antialiased",
         className
       )}
     >

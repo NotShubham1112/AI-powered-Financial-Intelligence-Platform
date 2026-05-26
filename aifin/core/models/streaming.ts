@@ -13,6 +13,11 @@ export type RuntimeStage =
   | "deterministic"
   | "complete"
   | "error"
+  // Agent pipeline stages
+  | "agent_planning"
+  | "agent_executing"
+  | "agent_step_complete"
+  | "agent_synthesizing"
 
 export type StreamCallbacks = {
   onStage?: (stage: RuntimeStage, detail?: string) => void

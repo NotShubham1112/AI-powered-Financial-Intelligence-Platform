@@ -1,5 +1,5 @@
 """
-Full agent pipeline: decompose → plan DAG → execute → validate → synthesize.
+Full agent pipeline: decompose -> plan DAG -> execute -> validate -> synthesize.
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ class PipelineResult:
 
 class AgentPipeline:
     """
-    Planner → Dependency Graph → Executor → Result Memory → Validation → Synthesis
+    Planner -> Dependency Graph -> Executor -> Result Memory -> Validation -> Synthesis
     """
 
     def __init__(

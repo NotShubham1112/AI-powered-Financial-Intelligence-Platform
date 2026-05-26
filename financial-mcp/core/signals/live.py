@@ -36,7 +36,7 @@ class LiveSignalEngine:
                         LiveSignal(
                             "Macro recession signal",
                             "elevated",
-                            f"Inverted / flat curve · spread {spread} bps",
+                            f"Inverted / flat curve - spread {spread} bps",
                             tool,
                         )
                     )
@@ -45,7 +45,7 @@ class LiveSignalEngine:
                         LiveSignal(
                             "Yield curve regime",
                             "stable",
-                            f"No inversion signal · spread {spread} bps",
+                            f"No inversion signal - spread {spread} bps",
                             tool,
                         )
                     )
@@ -58,7 +58,7 @@ class LiveSignalEngine:
                     LiveSignal(
                         "Momentum breadth",
                         direction,
-                        f"RSI {rsi:.1f} · {regime} — watch for late-stage acceleration risk if >65",
+                        f"RSI {rsi:.1f} - {regime} - watch for late-stage acceleration risk if >65",
                         tool,
                     )
                 )
@@ -70,7 +70,7 @@ class LiveSignalEngine:
                         LiveSignal(
                             "MACD momentum",
                             "up",
-                            "Bullish crossover — constructive but confirm with macro",
+                            "Bullish crossover - constructive but confirm with macro",
                             tool,
                         )
                     )
@@ -79,7 +79,7 @@ class LiveSignalEngine:
                         LiveSignal(
                             "MACD momentum",
                             "down",
-                            "Bearish crossover — momentum deterioration",
+                            "Bearish crossover - momentum deterioration",
                             tool,
                         )
                     )

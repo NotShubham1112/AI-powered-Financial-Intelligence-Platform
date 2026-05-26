@@ -30,7 +30,10 @@ export default function ChatPage() {
     () =>
       new DefaultChatTransport({
         api: "/api/chat",
-        body: () => ({ model: useChatStore.getState().selectedModel }),
+        body: () => ({
+          model: useChatStore.getState().selectedModel,
+          agentEnabled: useChatStore.getState().agentEnabled,
+        }),
       }),
     []
   )
@@ -185,7 +188,7 @@ export default function ChatPage() {
       />
       {error && (
         <div className="mx-auto max-w-[1200px] px-6 pb-2">
-          <div className="border border-destructive/40 bg-destructive/10 px-3 py-2 font-mono text-[11px] text-destructive">
+          <div className="border border-destructive/40 bg-destructive/10 px-3 py-2 text-[11px] text-destructive">
             Error: {error.message}
           </div>
         </div>

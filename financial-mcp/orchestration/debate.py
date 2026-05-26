@@ -93,11 +93,11 @@ class DebateResolutionEngine:
         data = nr.output or {}
         tool = nr.tool_name
         if tool == "rsi_indicator" and data.get("signal") in ("neutral", "oversold"):
-            return f"Momentum supportive — RSI {data.get('rsi', 'N/A')} ({data.get('signal')})", 0.72
+            return f"Momentum supportive - RSI {data.get('rsi', 'N/A')} ({data.get('signal')})", 0.72
         if tool == "macd_indicator" and data.get("crossover") == "bullish_cross":
             return "MACD bullish crossover supports risk-on positioning", 0.75
         if tool == "yield_curve_signal" and not data.get("recession_signal"):
-            return "No yield-curve recession signal — macro backdrop not flashing stress", 0.7
+            return "No yield-curve recession signal - macro backdrop not flashing stress", 0.7
         if tool == "dcf_valuation_tool":
             px = data.get("implied_share_price")
             return f"DCF intrinsic anchor at ${px} supports valuation discipline", 0.68
@@ -107,7 +107,7 @@ class DebateResolutionEngine:
         data = nr.output or {}
         tool = nr.tool_name
         if tool == "yield_curve_signal" and data.get("recession_signal"):
-            return "Inverted yield curve — late-cycle macro risk elevated", 0.78
+            return "Inverted yield curve - late-cycle macro risk elevated", 0.78
         if tool == "rsi_indicator" and data.get("signal") == "overbought":
             rsi = data.get("rsi", 70)
             return (
@@ -116,9 +116,9 @@ class DebateResolutionEngine:
                 0.76,
             )
         if tool == "merton_default_prob" and data.get("default_probability", 0) > 0.08:
-            return f"Structural default probability {data['default_probability']:.1%} — credit stress", 0.8
+            return f"Structural default probability {data['default_probability']:.1%} - credit stress", 0.8
         if tool == "credit_spread_analysis_tool" and "tight" in str(data.get("implied_rating_bucket", "")):
-            return "Tight credit spreads may be complacent vs macro — monitor lag risk", 0.74
+            return "Tight credit spreads may be complacent vs macro - monitor lag risk", 0.74
         return None, 0.0
 
     def _reconcile(
@@ -136,10 +136,10 @@ class DebateResolutionEngine:
             )
         if bull and bear:
             return (
-                "Bull and risk agents both contribute valid lenses — weight engine-backed evidence "
+                "Bull and risk agents both contribute valid lenses - weight engine-backed evidence "
                 f"({len(evidence)} claims) over narrative extrapolation. "
                 "Favor probabilistic sizing until cross-domain alignment improves."
             )
         if bull:
             return "Cross-agent alignment skews constructive; monitor for regime shift in live signals."
-        return "Insufficient engine coverage for strong directional conviction — widen scenario bands."
+        return "Insufficient engine coverage for strong directional conviction - widen scenario bands."

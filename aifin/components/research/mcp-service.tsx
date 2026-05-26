@@ -12,14 +12,18 @@
  */
 
 import React from "react"
-import { ResearchArtifact, validateArtifact } from "./schemas"
-import { getSafeComponent, isComponentSafe } from "./component-registry"
+import { ResearchArtifact, validateArtifact, tryValidateChart, tryValidateTable } from "./schemas"
 import { ExecutiveSummary } from "./executive-summary"
 import { FinancialMetrics } from "./financial-metrics"
 import { ChartRenderer } from "./chart-renderer"
 import { TableRenderer } from "./table-renderer"
 import { ContentRenderer } from "./content-renderer"
-import { TypographyH2 } from "./typography"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 export interface RenderedComponent {
   id: string
@@ -55,9 +59,11 @@ export function mapArtifactToComponents(
     })
   }
 
-  // 3. Charts (in order)
+  // 3. Charts (in order) — validate each individually so one bad chart doesn't break others
   if (artifact.charts) {
-    for (const chart of artifact.charts) {
+    for (const raw of artifact.charts) {
+      const chart = tryValidateChart(raw)
+      if (!chart) continue
       components.push({
         id: `component-${idCounter++}`,
         type: `chart_${chart.type}`,
@@ -75,30 +81,36 @@ export function mapArtifactToComponents(
         id: `component-${idCounter++}`,
         type: "section",
         component: (
-          <div className="border border-zinc-800 rounded-lg bg-black p-6">
-            <TypographyH2>{section.title}</TypographyH2>
-            <div className="mt-4">
+          <Card className="mb-6 border-zinc-800">
+            <CardHeader>
+              <CardTitle>{section.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
               <ContentRenderer blocks={section.content} />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ),
       })
     }
   }
 
-  // 5. Tables
+  // 5. Tables — validate each individually so one bad table doesn't break others
   if (artifact.tables) {
-    for (const table of artifact.tables) {
+    for (const raw of artifact.tables) {
+      const table = tryValidateTable(raw)
+      if (!table) continue
       components.push({
         id: `component-${idCounter++}`,
         type: "table",
         component: (
-          <div className="border border-zinc-800 rounded-lg bg-black p-6">
-            <TypographyH2>{table.title}</TypographyH2>
-            <div className="mt-4">
+          <Card className="mb-6 border-zinc-800">
+            <CardHeader>
+              <CardTitle>{table.title}</CardTitle>
+            </CardHeader>
+            <div className="px-6 pb-6">
               <TableRenderer data={table.data} />
             </div>
-          </div>
+          </Card>
         ),
       })
     }
@@ -146,11 +158,12 @@ Available artifact structure:
   "key_metrics": [
     { "label": "string", "value": "string", "subtext": "string?" }
   ],
-  "charts": [
+    "charts": [
     {
-      "type": "revenue|margin|market-share|line|bar|pie",
+      "type": "revenue|margin|market-share|line|bar|pie|donut|horizontal-bar|radial|area|multiple-bar|mixed-bar",
       "title": "string",
-      "data": [{ "year|name": "string", "value|revenue|margin": number }]
+      "description": "string?",
+      "data": [{ "year|name|month": "string", "value|revenue|margin": number }]
     }
   ],
   "tables": [

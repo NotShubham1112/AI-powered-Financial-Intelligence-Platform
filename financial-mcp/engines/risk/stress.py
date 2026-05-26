@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import norm
 from pydantic import BaseModel, Field
 from typing import List
 

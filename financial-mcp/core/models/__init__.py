@@ -1,4 +1,4 @@
-"""Fault-tolerant model runtime — deterministic fallback and routing policy."""
+"""Fault-tolerant model runtime - deterministic fallback and routing policy."""
 
 from core.models.config import (
     CODING_MODELS,

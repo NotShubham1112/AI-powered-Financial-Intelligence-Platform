@@ -15,6 +15,10 @@ const FRIENDLY_LABELS: Record<string, string> = {
   deep_synthesis: "Extending analysis",
   deterministic: "Running financial engines",
   complete: "Complete",
+  agent_planning: "Planning analysis steps",
+  agent_executing: "Executing research plan",
+  agent_step_complete: "Step complete",
+  agent_synthesizing: "Synthesizing results",
 }
 
 export function RuntimeStatusBar() {
