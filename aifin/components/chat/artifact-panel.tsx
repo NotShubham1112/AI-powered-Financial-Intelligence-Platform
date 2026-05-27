@@ -58,8 +58,8 @@ export function ArtifactPanel() {
                 <div className="flex items-start gap-2">
                   <Icon className="mt-0.5 h-3.5 w-3.5 text-muted-foreground/50" />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-mono text-[12px] text-foreground">{artifact.title}</div>
-                    <div className="mt-1 font-mono text-[10px] text-muted-foreground/50">
+                    <div className="truncate font-sans text-sm font-semibold text-foreground">{artifact.title}</div>
+                    <div className="mt-1 font-sans text-xs text-muted-foreground/60">
                       {artifact.type} · {artifact.date}
                     </div>
                   </div>

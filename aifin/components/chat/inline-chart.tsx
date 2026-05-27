@@ -48,12 +48,12 @@ export function InlineChart({ chart }: { chart: ChartData }) {
                 dataKey={chart.xKey}
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 10, fill: "var(--muted-foreground)", fontFamily: "monospace" }}
+                tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 10, fill: "var(--muted-foreground)", fontFamily: "monospace" }}
+                tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
               />
               <ChartTooltip
                 cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "4 4" }}
@@ -146,12 +146,12 @@ export function InlineChart({ chart }: { chart: ChartData }) {
   }
 
   return (
-    <div className="my-4 border border-border bg-card">
-      <div className="flex items-start justify-between border-b border-border px-4 py-3">
+    <div className="my-8 rounded-lg border border-border/40 bg-background shadow-sm">
+      <div className="flex items-start justify-between border-b border-border/30 px-4 py-3">
         <div>
-          <div className="font-mono text-[12px] font-medium text-foreground">{chart.title}</div>
+          <div className="text-sm font-semibold text-foreground">{chart.title}</div>
           {chart.description && (
-            <p className="mt-1 font-mono text-[11px] text-muted-foreground/60">{chart.description}</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">{chart.description}</p>
           )}
         </div>
         <div className="flex items-center gap-1">
@@ -163,7 +163,7 @@ export function InlineChart({ chart }: { chart: ChartData }) {
           </TerminalButton>
         </div>
       </div>
-      <div className="border-b border-border px-4 py-2">
+      <div className="border-b border-border/30 px-4 py-2">
         <MetadataLabel>chart_output</MetadataLabel>
       </div>
       <div className="h-[280px] w-full p-4">

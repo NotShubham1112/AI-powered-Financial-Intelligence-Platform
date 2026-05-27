@@ -117,6 +117,13 @@ export async function POST(req: Request) {
       mcpResult,
     })
   } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error)
+    if (msg.toLowerCase().includes("image")) {
+      return new Response(
+        JSON.stringify({ error: "This model does not support image inputs. Please use text-only queries." }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      )
+    }
     console.error("POST Handler Error:", error)
     return new Response("Internal Server Error", { status: 500 })
   }

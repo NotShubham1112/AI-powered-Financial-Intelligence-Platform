@@ -21,13 +21,13 @@ const statusBorder: Record<ExecutionTraceStatus, string> = {
 
 export function ExecutionTrace({ items }: { items: ExecutionTraceItem[] }) {
   return (
-    <div className="flex flex-col border border-border bg-card/50 font-mono">
-      <div className="border-b border-border px-3 py-2">
+    <div className="flex flex-col rounded-lg border border-border/40 bg-background/50 font-sans">
+      <div className="border-b border-border/30 px-3 py-2">
         <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60">
           execution_trace
         </span>
       </div>
-      <div className="divide-y divide-border">
+      <div className="divide-y divide-border/30">
         {items.map((item) => (
           <div
             key={item.id}
@@ -38,9 +38,9 @@ export function ExecutionTrace({ items }: { items: ExecutionTraceItem[] }) {
           >
             <TraceIcon status={item.status} />
             <div className="min-w-0 flex-1">
-              <code className="text-[11px] text-foreground/70">[{item.label}]</code>
+              <span className="text-xs text-foreground/70 font-medium">{item.label}</span>
               {item.detail && (
-                <p className="mt-0.5 text-[11px] text-muted-foreground/50">{item.detail}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground/60">{item.detail}</p>
               )}
             </div>
           </div>

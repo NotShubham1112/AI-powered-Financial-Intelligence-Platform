@@ -1,5 +1,10 @@
 import type { ModelMessage } from "ai"
 
+/** Remove data URIs (base64 images, etc.) from text content */
+function stripDataUris(text: string): string {
+  return text.replace(/data:image\/[^;]+;base64,[^\s)"']+/gi, "[image]")
+}
+
 export function toOpenRouterMessages(
   messages: ModelMessage[]
 ): Array<{ role: string; content: string }> {
@@ -8,11 +13,11 @@ export function toOpenRouterMessages(
       role: m.role,
       content:
         typeof m.content === "string"
-          ? m.content
+          ? stripDataUris(m.content)
           : Array.isArray(m.content)
             ? m.content
                 .filter((p) => p.type === "text")
-                .map((p) => (p as { text: string }).text)
+                .map((p) => stripDataUris((p as { text: string }).text))
                 .join("\n")
             : "",
     }))

@@ -2,7 +2,7 @@ import logging
 
 import structlog
 
-from .settings import settings
+from settings import settings
 
 
 def configure_logging() -> None:

@@ -2,8 +2,18 @@ import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from mcp.server.fastmcp import FastMCP
-from .settings import settings
-from .log_config import configure_logging
+import sys
+import os
+
+# Add necessary directories to Python path
+mcp_server_dir = os.path.dirname(os.path.abspath(__file__))
+financial_mcp_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+sys.path.insert(0, mcp_server_dir)  # For local imports (settings, log_config)
+sys.path.insert(0, financial_mcp_dir)  # For financial-mcp package imports (core, orchestration, registry)
+
+from settings import settings
+from log_config import configure_logging
 from registry.loader import load_all_tools
 
 configure_logging()
@@ -28,7 +38,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-from .routes.agent import router as agent_router  # noqa: E402
+from routes.agent import router as agent_router  # noqa: E402
 
 app.include_router(agent_router)
 

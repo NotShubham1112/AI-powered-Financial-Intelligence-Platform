@@ -104,18 +104,20 @@ export class ExecutionEngine {
     switch (skillName) {
       case "/skills/chart_builder": {
         const chartBlock = data.chart_block as string
-        return chartBlock || JSON.stringify(data, null, 2)
+        return chartBlock || ""
       }
       case "/skills/table_builder": {
         const markdown = data.markdown as string
-        return markdown || JSON.stringify(data, null, 2)
+        return markdown || ""
       }
       case "/skills/report_generator": {
         const report = data.report as string
-        return report || JSON.stringify(data, null, 2)
+        return report || ""
       }
       default:
-        return JSON.stringify(data, null, 2)
+        // Return empty string instead of exposing raw JSON
+        // Skills should always return properly formatted content
+        return ""
     }
   }
 }

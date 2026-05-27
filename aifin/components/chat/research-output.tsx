@@ -86,34 +86,8 @@ export function ResearchOutput({ content }: { content: string }) {
     )
   }
 
-  // If content is valid JSON but not a valid artifact, render raw JSON nicely
-  if (isJson) {
-    return (
-      <ResearchLayout>
-        <div className="space-y-6">
-          <Card className="border-zinc-800">
-            <CardHeader>
-              <CardTitle>Analysis Result</CardTitle>
-              <CardDescription>Raw structured data</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <pre className="overflow-x-auto rounded-lg border border-border bg-black/50 p-4 text-sm text-muted-foreground font-mono whitespace-pre-wrap">
-                {(() => {
-                  try {
-                    return JSON.stringify(JSON.parse(content), null, 2)
-                  } catch {
-                    return content
-                  }
-                })()}
-              </pre>
-            </CardContent>
-          </Card>
-        </div>
-      </ResearchLayout>
-    )
-  }
-
-  // Otherwise render as markdown sections with typography
+  // Skip raw JSON rendering - never expose structured data objects to users
+  // Render as markdown instead, which is more user-friendly
   const sections = splitSections(content)
 
   return (

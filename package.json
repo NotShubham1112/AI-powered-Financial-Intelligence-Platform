@@ -1,0 +1,16 @@
+{
+  "name": "finintel",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "cd aifin && npm run dev",
+    "dev:web": "cd aifin && npm run dev:web",
+    "dev:mcp": "cd aifin && npm run dev:mcp",
+    "build": "cd aifin && npm run build",
+    "lint": "cd aifin && npm run lint",
+    "typecheck": "cd aifin && npm run typecheck",
+    "install:web": "cd aifin && npm install",
+    "install:mcp": "cd financial-mcp && pip install -r requirements.txt",
+    "install:all": "npm run install:web && npm run install:mcp"
+  }
+}

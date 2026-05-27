@@ -50,13 +50,11 @@ export function ArtifactRenderer({
 
   if (error) {
     return (
-      <div className="border border-red-900 rounded-lg bg-black p-6 mb-6">
-        <TypographyLarge>Report Overview</TypographyLarge>
-        <div className="text-zinc-400 text-sm mt-2 whitespace-pre-wrap font-mono">
-          {typeof artifact === "object" && artifact !== null
-            ? JSON.stringify(artifact, null, 2)
-            : String(artifact ?? "No data")}
-        </div>
+      <div className="rounded-lg border border-border/40 bg-background p-6 mb-6">
+        <TypographyLarge>Unable to render report</TypographyLarge>
+        <p className="text-muted-foreground text-sm mt-2">
+          {error}
+        </p>
       </div>
     )
   }
@@ -64,13 +62,11 @@ export function ArtifactRenderer({
   return (
     <div className="space-y-6">
       {components.length === 0 && (
-        <div className="border border-zinc-800 rounded-lg bg-black p-6 mb-6">
+        <div className="rounded-lg border border-border/40 bg-background p-6 mb-6">
           <TypographyLarge>Analysis Result</TypographyLarge>
-          <div className="text-zinc-400 text-sm mt-2 whitespace-pre-wrap font-mono">
-            {typeof artifact === "object" && artifact !== null
-              ? JSON.stringify(artifact, null, 2)
-              : String(artifact ?? "No data")}
-          </div>
+          <p className="text-muted-foreground text-sm mt-2">
+            The analysis was completed but generated no structured data.
+          </p>
         </div>
       )}
       {components.map((component, idx) => (

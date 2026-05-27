@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n web,mcp -c cyan,yellow \"next dev --turbopack\" \"cd ../financial-mcp/apps/mcp-server && uvicorn main:app --reload --host 0.0.0.0 --port 8000\"",
+    "dev": "concurrently -n web,mcp -c cyan,yellow \"next dev --turbopack\" \"cd ../financial-mcp/apps/mcp-server && python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000\"",
     "dev:web": "next dev --turbopack",
-    "dev:mcp": "cd ../financial-mcp/apps/mcp-server && uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "dev:mcp": "cd ../financial-mcp/apps/mcp-server && python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
