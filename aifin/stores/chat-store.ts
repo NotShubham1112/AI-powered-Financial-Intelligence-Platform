@@ -112,6 +112,8 @@ interface ChatState {
   setAgentEnabled: (enabled: boolean) => void
   agentMode: AgentModeToggle
   setAgentMode: (mode: AgentModeToggle) => void
+  devMode: boolean
+  setDevMode: (mode: boolean) => void
 
   getActiveSession: () => ChatSession | undefined
   getActiveMessages: () => Message[]
@@ -187,6 +189,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setAgentEnabled: (agentEnabled) => set({ agentEnabled }),
   agentMode: "auto",
   setAgentMode: (agentMode) => set({ agentMode }),
+  devMode: false,
+  setDevMode: (devMode) => set({ devMode }),
 
   getActiveSession: () => {
     const { sessions, activeSessionId } = get()

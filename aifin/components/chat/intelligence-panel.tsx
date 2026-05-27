@@ -9,6 +9,7 @@ import type {
   McpDebate,
   ToolTrace,
 } from "@/stores/chat-store"
+import { useChatStore } from "@/stores/chat-store"
 import { cn } from "@/lib/utils"
 
 type IntelligencePanelProps = {
@@ -26,6 +27,8 @@ export function IntelligencePanel({
   debate,
   toolTraces,
 }: IntelligencePanelProps) {
+  const devMode = useChatStore((s) => s.devMode)
+
   const hasContent =
     executionMeta ||
     (evidence && evidence.length > 0) ||
@@ -33,7 +36,8 @@ export function IntelligencePanel({
     debate?.reconciliation ||
     (toolTraces && toolTraces.length > 0)
 
-  if (!hasContent) return null
+  // Gate behind dev mode — internal execution details not shown to end users
+  if (!devMode || !hasContent) return null
 
   return (
     <div className="space-y-2">

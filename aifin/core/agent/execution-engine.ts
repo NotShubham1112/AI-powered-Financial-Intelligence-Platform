@@ -3,14 +3,15 @@ import { callLLM } from "./llm"
 import { toolRouter } from "./tool-router"
 import { mcpExecutor } from "./mcp-executor"
 import { executeSkill } from "./skills"
-import type { AgentPlan, RoutedStepResult } from "./types"
+import type { Domain, AgentPlan, ReasoningSummary, RoutedStepResult } from "./types"
+import { createStepSummary } from "./reasoning-summarizer"
 
-const REASONING_PROMPT = `You are a financial analyst executing a single step of a research plan.
+const REASONING_PROMPT = `You are a research analyst executing a single step of a plan.
 
 Given:
 1. The overall goal
 2. The current step to execute
-3. Results from previous steps (including tool outputs)
+3. Results from previous steps
 4. The routing decision (this step uses LLM reasoning)
 
 Produce a concise, actionable analysis for ONLY this step. Be specific and use data where possible.
@@ -24,35 +25,35 @@ export class ExecutionEngine {
     model: string,
     referer: string,
     originalQuery: string
-  ): Promise<RoutedStepResult[]> {
+  ): Promise<{ results: RoutedStepResult[]; summaries: ReasoningSummary[] }> {
     const results: RoutedStepResult[] = []
+    const summaries: ReasoningSummary[] = []
     let accumulatedContext = ""
+    const domain = plan.domain
 
     for (let i = 0; i < plan.todo.length; i++) {
       const stepTitle = plan.todo[i]
 
-      // Route this task to MCP, Skill, or Reasoning
-      const route = await toolRouter.route(stepTitle, accumulatedContext, apiKey, model, referer)
+      const route = await toolRouter.route(stepTitle, accumulatedContext, apiKey, model, referer, domain)
       let output = ""
       let rawData: unknown = undefined
 
       switch (route.type) {
         case "mcp": {
-          const mcpResult = await mcpExecutor.execute(route, originalQuery, i)
-          output = mcpResult.output
+          const mcpResult = await mcpExecutor.execute(route, originalQuery, i, domain)
+          output = mcpResult.output || "Data retrieved."
           rawData = mcpResult.rawData
           break
         }
 
         case "skill": {
-          const skillResult = await executeSkill(route.toolOrSkill, route.params)
+          const skillResult = await executeSkill(route.toolOrSkill, route.params, domain)
           if (skillResult.success) {
             output = this.formatSkillOutput(route.toolOrSkill, skillResult.data)
-            rawData = skillResult.data
-          } else {
-            output = `Skill execution failed: ${skillResult.error}. Falling back to reasoning.`
-            const reasoningOutput = await this.reasonStep(stepTitle, plan.goal, accumulatedContext, apiKey, model, referer)
-            output += `\n${reasoningOutput}`
+          }
+          // On failure, silently fall back to reasoning — no error messages exposed
+          if (!skillResult.success || !output) {
+            output = await this.reasonStep(stepTitle, plan.goal, accumulatedContext, apiKey, model, referer)
           }
           break
         }
@@ -71,10 +72,16 @@ export class ExecutionEngine {
         rawData,
       }
       results.push(result)
-      accumulatedContext += `\nStep ${i + 1}: ${stepTitle}\nRoute: ${route.type} · ${route.toolOrSkill}\n${output}\n`
+
+      // Build clean accumulated context — no routing details
+      accumulatedContext += `\nStep ${i + 1}: ${stepTitle}\n${output}\n`
+
+      // Build reasoning summary for user display (no internal details)
+      const summary = createStepSummary(i, stepTitle, domain ?? "general")
+      summaries.push(summary)
     }
 
-    return results
+    return { results, summaries }
   }
 
   private async reasonStep(
@@ -115,8 +122,6 @@ export class ExecutionEngine {
         return report || ""
       }
       default:
-        // Return empty string instead of exposing raw JSON
-        // Skills should always return properly formatted content
         return ""
     }
   }

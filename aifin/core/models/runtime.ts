@@ -12,7 +12,7 @@ import { modelLatency } from "./latency"
 import { modelRouter } from "./router"
 import { withConcurrencyLimit, getQueueMetrics } from "./queue"
 import {
-  fetchOpenRouterStream,
+  fetchProviderStream,
   isRetryableError,
   sleepWithJitter,
   type OpenRouterMessage,
@@ -169,7 +169,7 @@ export class FaultTolerantInferenceRuntime {
       emitRuntimeMarker(writer, textId, "connecting", modelId)
 
       const result = await withConcurrencyLimit(modelId, () =>
-        fetchOpenRouterStream(req.apiKey, {
+        fetchProviderStream({
           model: modelId,
           messages: req.messages,
           referer: req.referer,
@@ -260,7 +260,7 @@ export class FaultTolerantInferenceRuntime {
       },
     ]
 
-    const result = await fetchOpenRouterStream(req.apiKey, {
+    const result = await fetchProviderStream({
       model: backgroundModel,
       messages: bgMessages,
       referer: req.referer,

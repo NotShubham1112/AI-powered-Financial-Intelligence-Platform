@@ -1,19 +1,19 @@
-/** Re-exports fault-tolerant model runtime (backward compatible) */
+/** Backward-compatible re-exports — now routes through provider router */
 
 export {
   DEFAULT_INTERACTIVE_MODEL as DEFAULT_OPENROUTER_MODEL,
-  OPENROUTER_MODELS,
+  GROQ_MODELS as OPENROUTER_MODELS,
   DEPRECATED_MODEL_IDS,
   resolveModel,
   FAST_INTERACTIVE_MODELS,
-  FALLBACK_MODELS,
+  GROQ_MODELS,
 } from "@/core/models/config"
 
 export { fallbackChain } from "@/core/models/fallbacks"
 
 import { fallbackChain } from "@/core/models/fallbacks"
 import {
-  fetchOpenRouterStream,
+  fetchProviderStream,
   isRetryableError,
   type ProviderFetchResult,
 } from "@/core/models/providers"
@@ -34,7 +34,11 @@ export async function fetchOpenRouterChat(
     referer: string
   }
 ): Promise<OpenRouterResult> {
-  return fetchOpenRouterStream(apiKey, options)
+  return fetchProviderStream({
+    model: options.model,
+    messages: options.messages,
+    referer: options.referer,
+  }) as Promise<OpenRouterResult>
 }
 
 export async function fetchWithModelFallback(
@@ -50,12 +54,16 @@ export async function fetchWithModelFallback(
 
   for (const model of getFallbackModels(options.model)) {
     tried.push(model)
-    const result = await fetchOpenRouterStream(apiKey, { ...options, model })
+    const result = await fetchProviderStream({
+      model,
+      messages: options.messages,
+      referer: options.referer,
+    })
     if (result.ok) {
       return { ...result, triedModels: tried }
     }
-    lastResult = result
-    console.warn(`OpenRouter ${model} failed (${result.status}), trying next…`)
+    lastResult = result as OpenRouterResult
+    console.warn(`Provider ${model} failed (${result.status}), trying next…`)
     if (!isRetryableError(result.status, result.errorBody)) {
       return { ...result, triedModels: tried }
     }

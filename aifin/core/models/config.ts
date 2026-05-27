@@ -1,66 +1,118 @@
 /** Free-tier model tiers and routing policy */
 
 export const FAST_INTERACTIVE_MODELS = [
-  "google/gemini-flash:free",
-  "qwen/qwen3.5-plus:free",
-  "openrouter/free",
+  "groq/llama-3.3-70b-versatile",
+  "groq/llama-3.1-8b-instant",
+  "groq/openai/gpt-oss-20b",
+  "groq/qwen/qwen3-32b",
 ] as const
 
 export const DEEP_REASONING_MODELS = [
-  "qwen/qwen3.5-plus:free",
-  "mistralai/devstral-2:free",
-  "openrouter/free",
+  "groq/llama-3.3-70b-versatile",
+  "groq/meta-llama/llama-4-scout-17b-16e-instruct",
+  "groq/openai/gpt-oss-120b",
 ] as const
 
 export const CODING_MODELS = [
-  "mistralai/devstral-2:free",
-  "qwen/qwen3.5-plus:free",
+  "groq/llama-3.3-70b-versatile",
+  "groq/llama-3.1-8b-instant",
+  "groq/openai/gpt-oss-20b",
+  "groq/qwen/qwen3-32b",
 ] as const
 
 export const FALLBACK_MODELS = [
-  "openrouter/free",
-  "google/gemini-flash:free",
+  "groq/llama-3.1-8b-instant",
+  "groq/openai/gpt-oss-20b",
+  "groq/qwen/qwen3-32b",
 ] as const
 
 /** Models blocked for live chat / streaming UX */
 export const HEAVY_MODEL_PATTERNS = [
   /nemotron/i,
-  /120b/i,
-  /70b/i,
   /72b/i,
   /405b/i,
-  /llama-3\.3-70b/i,
   /gemma-4-26b/i,
 ] as const
 
 export const DEFAULT_INTERACTIVE_MODEL = FAST_INTERACTIVE_MODELS[0]
+
+export const GROQ_MODELS = [
+  {
+    id: "groq/llama-3.3-70b-versatile",
+    label: "llama-3.3-70b",
+    tier: "fast" as const,
+    provider: "groq" as const,
+    description: "Fast 70B (recommended)",
+  },
+  {
+    id: "groq/llama-3.1-8b-instant",
+    label: "llama-3.1-8b",
+    tier: "fast" as const,
+    provider: "groq" as const,
+    description: "Low-latency 8B model",
+  },
+  {
+    id: "groq/openai/gpt-oss-120b",
+    label: "gpt-oss-120b",
+    tier: "deep" as const,
+    provider: "groq" as const,
+    description: "OpenAI GPT OSS 120B, deep reasoning",
+  },
+  {
+    id: "groq/openai/gpt-oss-20b",
+    label: "gpt-oss-20b",
+    tier: "fast" as const,
+    provider: "groq" as const,
+    description: "OpenAI GPT OSS 20B, fast inference",
+  },
+  {
+    id: "groq/meta-llama/llama-4-scout-17b-16e-instruct",
+    label: "llama-4-scout",
+    tier: "deep" as const,
+    provider: "groq" as const,
+    description: "Meta Llama 4 Scout 17B",
+  },
+  {
+    id: "groq/qwen/qwen3-32b",
+    label: "qwen3.5-32b",
+    tier: "fast" as const,
+    provider: "groq" as const,
+    description: "Qwen 3 32B, balanced performance",
+  },
+] as const
 
 export const OPENROUTER_MODELS = [
   {
     id: "google/gemini-flash:free",
     label: "gemini-flash",
     tier: "fast" as const,
-    description: "Low-latency interactive (recommended)",
+    provider: "openrouter" as const,
+    description: "Low-latency interactive (OpenRouter)",
   },
   {
     id: "openrouter/free",
     label: "openrouter-free",
     tier: "fast" as const,
+    provider: "openrouter" as const,
     description: "Auto-routed free model pool",
   },
   {
     id: "qwen/qwen3.5-plus:free",
     label: "qwen3.5-plus",
     tier: "fast" as const,
+    provider: "openrouter" as const,
     description: "Fast structured reasoning",
   },
   {
     id: "mistralai/devstral-2:free",
     label: "devstral-2",
     tier: "coding" as const,
+    provider: "openrouter" as const,
     description: "Code and agent workflows",
   },
 ] as const
+
+export const ALL_MODELS = [...GROQ_MODELS, ...OPENROUTER_MODELS]
 
 export type ModelTier = "fast" | "deep" | "coding" | "fallback"
 
@@ -89,6 +141,10 @@ export const DEEP_TIMEOUTS: TimeoutProfile = {
 }
 
 export const DEPRECATED_MODEL_IDS = new Set([
+  "groq/llama-3.3-70b-specdec",
+  "groq/deepseek-r1-distill-llama-70b",
+  "groq/mixtral-8x7b-32768",
+  "groq/gemma2-9b-it",
   "nvidia/nemotron-3-super:free",
   "nvidia/nemotron-3-super-120b-a12b:free",
   "nvidia/nemotron-3-nano-omni-30b-a3b:free",
@@ -100,9 +156,10 @@ export const DEPRECATED_MODEL_IDS = new Set([
 ])
 
 const MODEL_ALIASES: Record<string, string> = {
-  "nvidia/nemotron-3-super:free": DEFAULT_INTERACTIVE_MODEL,
-  "nvidia/nemotron-3-super-120b-a12b:free": DEFAULT_INTERACTIVE_MODEL,
-  "qwen/qwen3-coder:free": "qwen/qwen3.5-plus:free",
+  "qwen/qwen3-coder:free": "groq/llama-3.1-8b-instant",
+  "google/gemini-flash:free": "groq/llama-3.3-70b-versatile",
+  "qwen/qwen3.5-plus:free": "groq/llama-3.3-70b-versatile",
+  "mistralai/devstral-2:free": "groq/llama-3.3-70b-versatile",
 }
 
 export function isHeavyModel(modelId: string): boolean {

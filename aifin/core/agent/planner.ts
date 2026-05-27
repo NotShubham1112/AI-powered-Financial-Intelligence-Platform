@@ -1,8 +1,8 @@
 import type { OpenRouterMessage } from "@/core/models/providers"
 import { callLLM, extractJsonFromLLMOutput } from "./llm"
-import type { AgentPlan } from "./types"
+import type { AgentPlan, Domain } from "./types"
 
-const PLANNER_PROMPT = `You are a financial analysis planner. Given a user query, break it down into atomic, independently solvable steps.
+const PLANNER_PROMPT = `You are a research planner. Given a user query and domain context, break it down into atomic, independently solvable steps.
 
 Output ONLY valid JSON with this exact structure:
 {
@@ -16,15 +16,29 @@ Rules:
 - Do NOT include any text outside the JSON block
 - Do NOT use markdown formatting`
 
+const DOMAIN_PLAN_PROMPTS: Record<string, string> = {
+  technology_research: `Focus on: market sizing, infrastructure analysis, policy landscape, talent ecosystem, enterprise adoption, competitive dynamics, growth projections. Use data-driven analysis.`,
+  macroeconomic_analysis: `Focus on: GDP, inflation, monetary/fiscal policy, employment, trade, yield curves, sector analysis, risk factors. Use quantitative indicators.`,
+  financial_portfolio_analysis: `Focus on: asset allocation, risk metrics, diversification, performance attribution, scenario analysis, rebalancing.`,
+  market_intelligence: `Focus on: market sizing, competitive landscape, growth drivers, barriers, trends, forecasts, key players.`,
+  policy_analysis: `Focus on: regulatory framework, policy impact, compliance requirements, strategic implications, stakeholder analysis.`,
+}
+
 export class Planner {
   async plan(
     query: string,
     apiKey: string,
     model: string,
-    referer: string
+    referer: string,
+    domain?: Domain
   ): Promise<AgentPlan> {
+    const domainPrompt = DOMAIN_PLAN_PROMPTS[domain ?? ""]
+    const systemPrompt = domainPrompt
+      ? `${PLANNER_PROMPT}\n\nDomain context: ${domainPrompt}`
+      : PLANNER_PROMPT
+
     const messages: OpenRouterMessage[] = [
-      { role: "system", content: PLANNER_PROMPT },
+      { role: "system", content: systemPrompt },
       { role: "user", content: query },
     ]
 
@@ -35,17 +49,30 @@ export class Planner {
       return {
         goal: parsed.goal,
         todo: parsed.todo.map(String),
+        domain,
       }
     }
 
-    return this.buildFallbackPlan(query)
+    return this.buildFallbackPlan(query, domain)
   }
 
-  private buildFallbackPlan(query: string): AgentPlan {
+  private buildFallbackPlan(query: string, domain?: Domain): AgentPlan {
     const q = query.toLowerCase()
     const steps: string[] = []
 
-    if (
+    if (domain === "technology_research") {
+      steps.push("Analyze market size, growth trajectory, and key projections")
+      steps.push("Evaluate infrastructure, compute, and policy landscape")
+      steps.push("Assess talent ecosystem, enterprise adoption, and competitive dynamics")
+      steps.push("Identify bottlenecks, risk factors, and growth catalysts")
+      steps.push("Synthesize findings into structured analysis")
+    } else if (domain === "macroeconomic_analysis") {
+      steps.push("Analyze macroeconomic indicators and trends")
+      steps.push("Evaluate fiscal and monetary policy stance")
+      steps.push("Assess sector and market conditions")
+      steps.push("Review risk factors and tail risks")
+      steps.push("Synthesize macro outlook and implications")
+    } else if (
       q.includes("stock") ||
       q.includes("equity") ||
       q.includes("share") ||
@@ -74,8 +101,8 @@ export class Planner {
       steps.push("Assess risk factors and tail risks")
       steps.push("Synthesize macro outlook")
     } else {
-      steps.push("Understand the financial context and objectives")
-      steps.push("Gather relevant data and perform analysis")
+      steps.push("Understand context and objectives")
+      steps.push("Gather and analyze relevant data")
       steps.push("Evaluate alternatives and trade-offs")
       steps.push("Generate structured recommendation")
     }
@@ -83,6 +110,7 @@ export class Planner {
     return {
       goal: query.length > 100 ? query.slice(0, 100) + "..." : query,
       todo: steps,
+      domain,
     }
   }
 }

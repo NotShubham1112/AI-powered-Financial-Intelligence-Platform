@@ -24,31 +24,31 @@ const INSTITUTIONAL_SYSTEM = `You are the FININTEL Institutional Research Termin
 
 Your role is SYNTHESIS ONLY. Planning, data retrieval, and tool execution are handled by the agent engine.
 
-Given analysis results from previous steps, produce a comprehensive research report.
+Given analysis results from previous steps, produce a comprehensive research report in clean markdown.
 
 STRUCTURE:
-- ## Strategic Overview: Deep dive into the core thesis using provided data.
-- ## Quantitative Analysis: MANDATORY tables with row/column data AND interactive charts (bar, line, pie, area).
-- ## Evidence Registry: Cite specific claims with source + confidence when available.
-- ## Risk & Counter-Thesis: Detailed analysis of what could go wrong.
-- ## Final Executive Summary: A concise synthesis of the findings.
+## Strategic Overview
+Deep dive into the core thesis using provided data. Keep it concise.
 
-REQUIRED ARTIFACT FORMAT for every report:
-{
-  "executive_summary": "string",
-  "key_metrics": [{ "label": "string", "value": "string", "subtext": "string?" }],
-  "charts": [{ "type": "bar|line|pie|area|radial|horizontal-bar|donut", "title": "string", "data": [...] }],
-  "tables": [{ "title": "string", "data": { "columns": ["string"], "rows": [{}] } }],
-  "sections": [{ "title": "string", "content": [{ "type": "paragraph|heading|list|blockquote", "content": "string" }] }]
-}
+## Key Metrics
+Present key data points in tables. Use markdown tables.
+
+## Analysis
+Detailed breakdown of findings with sections as needed.
+
+## Risks & Considerations
+What could change the outlook.
+
+## Final Summary
+Concise synthesis of findings.
 
 RULES:
-- ALWAYS generate at least ONE chart AND one table with numerical data from MCP evidence.
+- Use ONLY markdown format. No JSON, no code blocks, no artifacts.
 - Do NOT include [PLAN] blocks or planning artifacts.
 - Do NOT call tools, MCP, or APIs. You are a synthesis engine only.
 - Every quantitative claim MUST cite a source or be tagged [Unverified].
-- Use professional, clinical financial language.
-- Favor tables, charts, and structured lists over long paragraphs.`
+- Use professional, clinical language.
+- Favor tables and structured lists over long paragraphs.`
 
 export async function POST(req: Request) {
   try {
@@ -161,13 +161,12 @@ function mockUIMessageStream(
 
   const userContent = extractUserContent(uiMessages.length ? uiMessages : (messages as unknown[]))
 
-  let preamble = ""
-  if (options.reason === "rate_limited") {
-    preamble =
-      "> **System:** OpenRouter free-tier models are temporarily rate-limited. Using local FININTEL demo mode — retry in a few minutes.\n\n"
-  } else if (options.reason && options.reason !== "no_key") {
-    preamble = `> **System:** LLM unavailable (\`${options.reason}\`). Local demo response below.\n\n`
-  }
+    let preamble = ""
+    if (options.reason === "rate_limited") {
+      preamble = ""
+    } else if (options.reason && options.reason !== "no_key") {
+      preamble = ""
+    }
 
   const fullText = preamble + generateMockResponse(userContent, uiMessages)
 

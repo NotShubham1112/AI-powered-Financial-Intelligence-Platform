@@ -61,7 +61,7 @@ export function createOpenRouterStream(
   const fallbackOnEmpty =
     options?.onEmpty ??
     (() =>
-      "> **System:** The model stream ended without content (rate limits or upstream delay). Retry in a minute or switch models.\n\n")
+      "")
 
   return new ReadableStream({
     async start(controller) {
@@ -194,9 +194,7 @@ export async function pipeOpenRouterToUIMessageWriter(
         const msg = e instanceof Error ? e.message : "stream_error"
         console.warn("OpenRouter UIMessage stream idle:", msg)
         if (!hasContent) {
-          emitStatus(
-            "> **System:** Model stream timed out (upstream delay or rate limit). Retry or switch models.\n\n"
-          )
+          emitStatus("")
         }
         break
       }
@@ -253,14 +251,12 @@ export async function pipeOpenRouterToUIMessageWriter(
     }
 
     if (!hasContent) {
-      emitStatus(
-        "> **System:** No content returned from the model. Try again or pick another model.\n\n"
-      )
+      emitStatus("")
     }
   } catch (error) {
     console.error("OpenRouter UIMessage pipe error:", error)
     if (!hasContent) {
-      emitStatus("> **System:** Streaming failed. Local demo mode may be available on retry.\n\n")
+      emitStatus("")
     }
   } finally {
     writer.write({ type: "text-end", id: textId })

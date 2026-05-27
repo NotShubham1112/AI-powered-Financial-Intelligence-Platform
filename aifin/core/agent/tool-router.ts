@@ -1,8 +1,9 @@
 import type { OpenRouterMessage } from "@/core/models/providers"
 import { callLLM, extractJsonFromLLMOutput } from "./llm"
-import type { ToolRoute } from "./types"
+import { validateSkillInputs } from "./skills"
+import type { Domain, ToolRoute } from "./types"
 
-const ROUTER_PROMPT = `You are a tool routing engine for a financial AI system.
+const ROUTER_PROMPT = `You are a task routing engine for an AI research system.
 
 Your job is to decide how to execute a task.
 
@@ -24,8 +25,9 @@ Available /skills (deterministic computations):
 
 Rules:
 - Use MCP for any real-world data (prices, rates, news, fundamentals)
-- Use /skills for math, finance logic, transformations, formatting
-- Use reasoning only when no tool fits
+- Use /skills for math, logic, transformations, formatting
+- /skills/risk_model and /skills/portfolio_builder are ONLY for financial portfolio analysis
+- Use reasoning when no tool fits
 
 Return ONLY valid JSON with this exact structure:
 {
@@ -53,28 +55,68 @@ const SKILL_PATTERNS: { pattern: RegExp; skill: string }[] = [
   { pattern: /report|summary|brief|write.?up|document|overview/i, skill: "/skills/report_generator" },
 ]
 
-function fallbackRoute(task: string): ToolRoute {
+const PORTFOLIO_SKILLS = new Set(["/skills/risk_model", "/skills/portfolio_builder"])
+
+const TECHNOLOGY_PATTERNS = [
+  /\bAI\b|\bartificial intelligence\b|\bmachine learning\b|\bdeep learning\b/i,
+  /\bcompute\b|\binfrastructure\b|\bdata center\b|\bGPU\b|\bsemiconductor\b|\bchip\b/i,
+  /\bdeveloper\b|\bstartup\b|\becosystem\b|\binnovation\b|\bdigital\b/i,
+  /\bIndia\b|\bmarket sizing\b|\bgrowth\b|\bprojection\b|\btalent\b/i,
+]
+
+const TECH_EXPLICIT_MACRO_PATTERNS = [
+  /\binterest\s+rate\b|\bfunding\s+cost\b|\bcapita(l| expenditure)\b|\bCAPEX\b|\binvestment\s+climate\b/i,
+  /\bventure\s+capital\b|\bVC\s+funding\b|\bprivate\s+equity\b|\bPE\s+investment\b/i,
+]
+
+function containsTechTerms(text: string): boolean {
+  return TECHNOLOGY_PATTERNS.some((p) => p.test(text))
+}
+
+function hasExplicitMacroIntent(text: string): boolean {
+  return TECH_EXPLICIT_MACRO_PATTERNS.some((p) => p.test(text))
+}
+
+function fallbackRoute(task: string, domain?: Domain): ToolRoute {
   const taskLower = task.toLowerCase()
+
+  // If domain is tech research, avoid portfolio skills and restrict macro data
+  const isTechResearch = domain === "technology_research" || domain === "market_intelligence"
+  const isMacroDomain = domain === "macroeconomic_analysis"
+  const hasTechTerms = containsTechTerms(taskLower)
+  const hasExplicitMacro = hasExplicitMacroIntent(taskLower)
 
   for (const { pattern, tool } of MCP_TOOL_PATTERNS) {
     if (pattern.test(taskLower)) {
+      // Block macro_data for tech research unless query explicitly asks for rates/funding
+      if (tool === "market.macro_data" && isTechResearch && !hasExplicitMacro) {
+        continue
+      }
       const tickerMatch = taskLower.match(/\b[A-Z]{1,5}\b/)
       return {
         type: "mcp",
         toolOrSkill: tool,
         params: tickerMatch ? { ticker: tickerMatch[0].toUpperCase(), range: "1M" } : {},
-        description: `Matched to MCP tool: ${tool} via keyword pattern`,
+        description: "Data retrieval",
       }
     }
   }
 
   for (const { pattern, skill } of SKILL_PATTERNS) {
     if (pattern.test(taskLower)) {
+      // Skip portfolio skills for non-finance domains
+      if ((isTechResearch || isMacroDomain) && PORTFOLIO_SKILLS.has(skill)) {
+        continue
+      }
+      // Skip portfolio skills when the query contains tech terms
+      if (hasTechTerms && PORTFOLIO_SKILLS.has(skill)) {
+        continue
+      }
       return {
         type: "skill",
         toolOrSkill: skill,
         params: {},
-        description: `Matched to /skills: ${skill} via keyword pattern`,
+        description: "Analysis task",
       }
     }
   }
@@ -83,7 +125,7 @@ function fallbackRoute(task: string): ToolRoute {
     type: "reasoning",
     toolOrSkill: "",
     params: {},
-    description: "No MCP or skill pattern matched; using LLM reasoning",
+    description: "Analysis via reasoning",
   }
 }
 
@@ -93,13 +135,18 @@ export class ToolRouter {
     context: string,
     apiKey: string,
     model: string,
-    referer: string
+    referer: string,
+    domain?: Domain
   ): Promise<ToolRoute> {
+    // First try domain-aware heuristic routing (fast path)
+    const heuristicRoute = fallbackRoute(task, domain)
+
+    // For tech/macro domains, try LLM routing but with domain context
     const messages: OpenRouterMessage[] = [
-      { role: "system", content: ROUTER_PROMPT },
+      { role: "system", content: `${ROUTER_PROMPT}\n\nCurrent domain context: ${domain || "general"}` },
       {
         role: "user",
-        content: `Task: ${task}\n\nContext so far: ${context || "none"}\n\nRoute this task.`,
+        content: `Task: ${task}\n\nContext: ${context || "none"}\n\nRoute this task considering the domain: ${domain || "general"}.`,
       },
     ]
 
@@ -112,22 +159,32 @@ export class ToolRouter {
         typeof parsed.type === "string" &&
         ["mcp", "skill", "reasoning"].includes(parsed.type)
       ) {
-        return {
+        const route: ToolRoute = {
           type: parsed.type as ToolRoute["type"],
           toolOrSkill: String(parsed.toolOrSkill ?? ""),
           params: (parsed.params as Record<string, unknown>) ?? {},
           description: String(parsed.description ?? ""),
         }
+
+        // Validate: if it's a portfolio skill, check inputs and domain
+        if (route.type === "skill" && PORTFOLIO_SKILLS.has(route.toolOrSkill)) {
+          const validation = validateSkillInputs(route.toolOrSkill, route.params, domain)
+          if (!validation.valid) {
+            return heuristicRoute
+          }
+        }
+
+        return route
       }
     } catch {
-      // fall through to heuristic routing
+      // fall through to heuristic
     }
 
-    return fallbackRoute(task)
+    return heuristicRoute
   }
 
-  routeHeuristic(task: string): ToolRoute {
-    return fallbackRoute(task)
+  routeHeuristic(task: string, domain?: Domain): ToolRoute {
+    return fallbackRoute(task, domain)
   }
 }
 

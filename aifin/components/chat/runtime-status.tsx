@@ -51,7 +51,7 @@ export function RuntimeStatusBar() {
       <div className="min-w-0">
         <MetadataLabel>{label}</MetadataLabel>
         <p className="font-mono text-[11px] text-muted-foreground/45">
-          This may take a moment on free-tier models
+          Processing your request
         </p>
       </div>
     </div>

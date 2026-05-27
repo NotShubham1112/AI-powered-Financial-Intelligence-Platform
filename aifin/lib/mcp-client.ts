@@ -148,59 +148,28 @@ export function formatMcpContext(result: McpAgentRunResult): string {
   const evidence = result.evidence ?? syn?.evidence ?? []
   const debate = result.debate ?? syn?.debate
   const liveSignals = result.live_signals ?? syn?.live_signals ?? []
-  const exec = result.execution_metadata ?? syn?.execution_metadata
-  const tools = result.tools?.length ? result.tools.join(", ") : "none"
-  const validation = result.validation as {
-    confidence?: number
-    flags?: string[]
-    contradictions?: string[]
-  } | undefined
 
   const evidenceBlock = evidence.length
     ? evidence
-        .map(
-          (e) =>
-            `- **${e.claim}** · source: ${e.source} · conf: ${e.confidence} · fresh: ${e.freshness_days}d`
-        )
+        .map((e) => `- ${e.claim} (source: ${e.source})`)
         .join("\n")
     : ""
 
-  const debateBlock = debate?.reconciliation
-    ? `**Debate reconciliation:** ${debate.reconciliation}`
-    : ""
+  const debateBlock = debate?.reconciliation || ""
 
   const signalsBlock = liveSignals.length
-    ? liveSignals.map((s) => `- ${s.label} [${s.direction}] — ${s.detail}`).join("\n")
+    ? liveSignals.map((s) => `- ${s.label}: ${s.detail}`).join("\n")
     : ""
 
   const quantBlock = syn?.quant_interpretation ?? ""
-  const scenarios = syn?.probabilistic_scenarios
-  const scenarioBlock = scenarios
-    ? `Expected return: ${scenarios.expected_return_pct}% · weights: ${JSON.stringify(scenarios.probability_weights)} · VaR95: ${scenarios.downside_var_95_pct}%`
-    : ""
 
   return [
-    "## MCP Engine Results (deterministic — cite these numbers only)",
-    `**Run:** ${result.run_id} · **Status:** ${result.status} · **Tools:** ${tools}`,
-    exec?.workflow_runtime_ms != null
-      ? `**Runtime:** ${(exec.workflow_runtime_ms / 1000).toFixed(1)}s · **Agents:** ${exec.agents_participated?.join(", ") ?? "—"}`
-      : "",
-    validation?.confidence != null ? `**Confidence:** ${validation.confidence}` : "",
-    debate?.adjusted_confidence != null
-      ? `**Post-debate confidence:** ${debate.adjusted_confidence}`
-      : "",
-    validation?.contradictions?.length
-      ? `**Contradictions:** ${validation.contradictions.join("; ")}`
-      : "",
-    quantBlock ? `\n### Quant interpretation\n${quantBlock}` : "",
-    scenarioBlock ? `\n### Probabilistic scenarios\n${scenarioBlock}` : "",
-    signalsBlock ? `\n### LIVE SIGNALS\n${signalsBlock}` : "",
-    evidenceBlock ? `\n### Evidence-bound claims (required citations)\n${evidenceBlock}` : "",
-    debateBlock ? `\n### Cross-agent debate\n${debateBlock}` : "",
-    syn?.tool_summaries?.length
-      ? `\n### Tool outputs\n${syn.tool_summaries.map((s) => `- **${s.tool}**: ${JSON.stringify(s.summary)}`).join("\n")}`
-      : "",
-    "\n**RULE:** Do NOT invent market share, developer counts, or efficiency multiples. Use only evidence-bound claims above or clearly label as [Unverified].",
+    "## Engine Results",
+    quantBlock || "Data retrieved.",
+    signalsBlock ? `\n### Signals\n${signalsBlock}` : "",
+    evidenceBlock ? `\n### Key evidence\n${evidenceBlock}` : "",
+    debateBlock ? `\n### Analysis\n${debateBlock}` : "",
+    "\n**Note:** Use only the evidence above. Clearly label any unsupported claims as [Unverified].",
   ]
     .filter(Boolean)
     .join("\n")

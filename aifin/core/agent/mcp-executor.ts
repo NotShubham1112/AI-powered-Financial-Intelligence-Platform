@@ -3,12 +3,12 @@ import {
   resolveMcpRunOptions,
   type McpAgentRunResult,
 } from "@/lib/mcp-client"
-import type { ToolRoute } from "./types"
+import type { Domain, ToolRoute } from "./types"
 
 const MCP_BASE_URL = process.env.FINANCIAL_MCP_URL ?? "http://127.0.0.1:8000"
 
 const TOOL_TO_SKILL_MAP: Record<string, string | undefined> = {
-  "market.stock_history": undefined,     // generic
+  "market.stock_history": undefined,
   "market.crypto_price": undefined,
   "market.macro_data": "macro_regime_detection",
   "market.news": undefined,
@@ -16,14 +16,25 @@ const TOOL_TO_SKILL_MAP: Record<string, string | undefined> = {
   "market.options_chain": "equity_research",
 }
 
+const DOMAIN_TOOL_RESTRICTIONS: Record<string, string[]> = {
+  technology_research: ["market.macro_data"],
+  market_intelligence: ["market.macro_data"],
+}
+
 export class McpExecutor {
   async execute(
     route: ToolRoute,
     originalQuery: string,
-    stepIndex: number
+    stepIndex: number,
+    domain?: Domain
   ): Promise<{ output: string; rawData?: unknown }> {
+    // Skip execution if this tool is restricted for this domain
+    if (domain && DOMAIN_TOOL_RESTRICTIONS[domain]?.includes(route.toolOrSkill)) {
+      return { output: "" }
+    }
+
     const skillName = TOOL_TO_SKILL_MAP[route.toolOrSkill]
-    const query = this.buildQuery(route, originalQuery)
+    const query = this.buildQuery(route, originalQuery, domain)
 
     try {
       const options = resolveMcpRunOptions(query)
@@ -36,21 +47,17 @@ export class McpExecutor {
       const result = await runMcpAgent(query, options)
 
       if (!result) {
-        return {
-          output: `MCP tool "${route.toolOrSkill}" unavailable or returned no data. Using available context.`,
-        }
+        return { output: "" }
       }
 
       const formatted = this.formatResult(result, route)
       return { output: formatted, rawData: result }
-    } catch (err) {
-      return {
-        output: `MCP tool call failed: ${err instanceof Error ? err.message : "unknown error"}. Continuing with available data.`,
-      }
+    } catch {
+      return { output: "" }
     }
   }
 
-  private buildQuery(route: ToolRoute, originalQuery: string): string {
+  private buildQuery(route: ToolRoute, originalQuery: string, domain?: Domain): string {
     const params = route.params
     switch (route.toolOrSkill) {
       case "market.stock_history":
@@ -58,6 +65,8 @@ export class McpExecutor {
       case "market.crypto_price":
         return `Check current ${params.symbol ?? "BTC"} price in ${params.currency ?? "USD"}`
       case "market.macro_data":
+        // For tech research, skip macro data unless query has explicit macro intent
+        if (domain === "technology_research") return ""
         return `Get ${params.indicator ?? "economic"} data for ${params.country ?? "US"}`
       case "market.news":
         return `Latest news: ${params.query ?? originalQuery}`
@@ -72,38 +81,38 @@ export class McpExecutor {
 
   private formatResult(result: McpAgentRunResult, route: ToolRoute): string {
     const syn = result.synthesis
+    const summary = syn?.quant_interpretation ?? ""
     const evidence = result.evidence ?? syn?.evidence ?? []
     const signals = result.live_signals ?? syn?.live_signals ?? []
-    const exec = result.execution_metadata ?? syn?.execution_metadata
-    const summary = syn?.quant_interpretation ?? ""
 
     const parts: string[] = []
 
-    parts.push(`**Tool:** ${route.toolOrSkill} — Status: ${result.status}`)
-
-    if (exec?.workflow_runtime_ms != null) {
-      parts.push(`Runtime: ${(exec.workflow_runtime_ms / 1000).toFixed(1)}s`)
-    }
-
+    // Only include the quantitative interpretation — no run_id, status, tool names, etc.
     if (summary) {
-      parts.push(`\n${summary}`)
+      parts.push(summary)
     }
 
+    // Include evidence claims in clean format (no confidence scores or internal fields)
     if (evidence.length > 0) {
-      parts.push("\n**Evidence:**")
-      for (const e of evidence.slice(0, 5)) {
-        parts.push(`- ${e.claim} (conf: ${e.confidence})`)
+      const cleanEvidence = evidence.slice(0, 3).map((e) => e.claim)
+      if (cleanEvidence.length > 0) {
+        parts.push("Key findings:")
+        parts.push(cleanEvidence.map((c) => `- ${c}`).join("\n"))
       }
     }
 
+    // Include signals in clean format
     if (signals.length > 0) {
-      parts.push("\n**Signals:**")
-      for (const s of signals.slice(0, 3)) {
-        parts.push(`- ${s.label}: ${s.direction} — ${s.detail}`)
+      const cleanSignals = signals.slice(0, 2).map((s) => {
+        const dir = s.direction === "up" ? "increasing" : s.direction === "down" ? "decreasing" : "stable"
+        return `${s.label}: ${dir}`
+      })
+      if (cleanSignals.length > 0) {
+        parts.push(cleanSignals.join(" · "))
       }
     }
 
-    return parts.join("\n") || `Data retrieved from ${route.toolOrSkill}.`
+    return parts.join("\n\n") || ""
   }
 }
 

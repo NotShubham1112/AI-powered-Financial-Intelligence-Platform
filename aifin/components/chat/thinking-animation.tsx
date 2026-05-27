@@ -13,13 +13,13 @@ export type TerminalLoaderPhase =
   | "heartbeat"
 
 const PHASE_LABELS: Record<TerminalLoaderPhase, string> = {
-  thinking: "reasoning",
-  planning: "planning_dag",
-  executing: "tool_execution",
-  streaming: "synthesis_stream",
-  validating: "risk_validation",
-  fallback: "provider_failover",
-  heartbeat: "stream_heartbeat",
+  thinking: "Analyzing query",
+  planning: "Planning research",
+  executing: "Gathering data",
+  streaming: "Generating report",
+  validating: "Validating results",
+  fallback: "Processing",
+  heartbeat: "Processing",
 }
 
 interface ThinkingAnimationProps {
