@@ -99,7 +99,7 @@ function HeroSection() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="max-w-[520px]"
+              className="w-full max-w-[520px]"
             >
               <div className="rounded-lg border border-muted bg-card shadow-sm">
                 {/* Tabs */}
@@ -109,7 +109,7 @@ function HeroSection() {
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id)}
-                      className={`px-4 py-2 text-[13px] transition-colors ${
+                      className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-[12px] sm:text-[13px] transition-colors ${
                         activeTab === tab.id
                           ? "bg-accent font-medium text-foreground"
                           : "text-muted-foreground hover:text-foreground"
@@ -120,8 +120,8 @@ function HeroSection() {
                   ))}
                 </div>
                 {/* Command */}
-                <div className="flex items-center justify-between gap-2 px-4 py-3">
-                  <code className="break-all text-[12px] leading-snug text-muted-foreground">
+                <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3">
+                  <code className="break-all text-[11px] sm:text-[12px] leading-snug text-muted-foreground">
                     <span className="text-foreground">{START_COMMANDS[activeTab]}</span>
                   </code>
                   <button
@@ -138,7 +138,7 @@ function HeroSection() {
                   </button>
                 </div>
               </div>
-              <p className="mt-3 text-[12px] text-muted-foreground/70">
+              <p className="mt-3 text-[11px] sm:text-[12px] text-muted-foreground/70">
                 MCP listens on{" "}
                 <code className="text-foreground/80">http://127.0.0.1:8000</code> · web app on{" "}
                 <code className="text-foreground/80">http://localhost:3000</code>
@@ -615,13 +615,12 @@ function Footer() {
     <footer>
       <div className="border-b border-border">
         <div className="mx-auto max-w-[1200px]">
-          <div className="grid grid-cols-5">
+          <div className="flex flex-wrap justify-center sm:grid sm:grid-cols-5">
             {footerLinks.map((link, i) => (
               <a
                 key={link.label}
                 href={link.href}
-                className={`flex items-center justify-center py-4 text-[13px] text-muted-foreground transition-colors hover:text-foreground ${i < footerLinks.length - 1 ? "border-r border-border" : ""
-                  }`}
+                className={`flex items-center justify-center px-4 py-4 text-[13px] text-muted-foreground transition-colors hover:text-foreground sm:border-r sm:border-border ${i === footerLinks.length - 1 ? "" : ""}`}
               >
                 {link.label}
               </a>

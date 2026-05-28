@@ -1,5 +1,5 @@
 import { Inter, IBM_Plex_Mono } from "next/font/google"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 
 // TypeScript may complain about side-effect CSS imports in some setups.
 import "./globals.css"
@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   title: "FININTEL — AI-Powered Financial Intelligence Platform",
   description:
     "The autonomous financial research system. Multi-agent AI platform for market analysis, portfolio intelligence, earnings research, and risk evaluation.",
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({

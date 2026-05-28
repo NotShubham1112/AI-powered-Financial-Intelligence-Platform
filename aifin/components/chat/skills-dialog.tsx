@@ -84,12 +84,12 @@ export function SkillsDialog({ open, onOpenChange }: SkillsDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         showCloseButton={false}
-        className="sm:max-w-[900px] w-full max-h-[85vh] h-[650px] border border-border bg-background p-0 shadow-2xl sm:rounded-xl overflow-hidden gap-0"
+        className="sm:max-w-[900px] w-[95vw] max-h-[85vh] h-[650px] border border-border bg-background p-0 shadow-2xl sm:rounded-xl overflow-hidden gap-0"
       >
         <DialogTitle className="sr-only">Directory</DialogTitle>
         <div className="flex h-full w-full">
-          {/* Left Sidebar */}
-          <div className="w-[220px] flex-shrink-0 border-r border-border bg-muted/20 flex flex-col justify-between">
+          {/* Left Sidebar - hidden on mobile, inline tabs instead */}
+          <div className="hidden sm:flex w-[180px] md:w-[220px] flex-shrink-0 border-r border-border bg-muted/20 flex-col justify-between">
             <div>
               <div className="flex h-14 items-center px-5 border-b border-border/40 justify-between">
                 <span className="font-semibold text-foreground tracking-tight text-base">
@@ -127,7 +127,7 @@ export function SkillsDialog({ open, onOpenChange }: SkillsDialogProps) {
               </div>
             </div>
             {/* Footer-like element inside sidebar */}
-            <div className="p-4 border-t border-border/40">
+            <div className="hidden sm:block p-4 border-t border-border/40">
               <div className="text-[10px] font-mono text-muted-foreground/50">
                 FININTEL CORE v1.0.2
               </div>
@@ -136,9 +136,31 @@ export function SkillsDialog({ open, onOpenChange }: SkillsDialogProps) {
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col min-w-0 bg-background relative">
+            {/* Mobile tab bar - visible only on small screens */}
+            <div className="flex sm:hidden border-b border-border/40">
+              {[
+                { id: "skills", label: "Skills", icon: Puzzle },
+                { id: "connectors", label: "Connectors", icon: Link2, badge: "soon" },
+                { id: "plugins", label: "Plugins", icon: Blocks, badge: "soon" },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => item.badge !== "soon" && setActiveTab(item.id as "skills" | "connectors" | "plugins")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[10px] uppercase tracking-wider font-medium transition-colors ${
+                    activeTab === item.id
+                      ? "bg-accent text-foreground border-b-2 border-foreground"
+                      : "text-muted-foreground/60 hover:text-foreground"
+                  } ${item.badge === "soon" ? "opacity-50" : ""}`}
+                >
+                  <item.icon className="h-3 w-3" />
+                  {item.label}
+                  {item.badge && <span className="text-[8px] ml-0.5">({item.badge})</span>}
+                </button>
+              ))}
+            </div>
             {/* Header / Search Area */}
-            <div className="flex h-14 items-center justify-between border-b border-border/40 px-6 gap-4">
-              <div className="relative flex-1 max-w-md">
+            <div className="flex h-14 items-center justify-between border-b border-border/40 px-4 md:px-6 gap-4">
+              <div className="relative flex-1 max-w-[180px] sm:max-w-md">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
                 <Input
                   placeholder="Search skills..."
@@ -160,16 +182,16 @@ export function SkillsDialog({ open, onOpenChange }: SkillsDialogProps) {
             {activeTab === "skills" ? (
               <div className="flex-1 flex flex-col min-h-0">
                 {/* Filter and sorting controls */}
-                <div className="flex flex-wrap items-center justify-between px-6 py-3 border-b border-border/30 gap-3">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 md:px-6 py-3 border-b border-border/30 gap-2 sm:gap-3">
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="px-2 py-0.5 font-mono text-[10px] tracking-wider uppercase bg-accent text-foreground border border-border/40">
+                    <Badge variant="secondary" className="hidden sm:inline-flex px-2 py-0.5 font-mono text-[10px] tracking-wider uppercase bg-accent text-foreground border border-border/40">
                       FININTEL & Partners
                     </Badge>
                   </div>
                   
                   {/* Category Filter Pills & Sort Dropdown */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1 border border-border/50 rounded-lg p-0.5 bg-accent/20">
+                  <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                    <div className="flex items-center gap-1 border border-border/50 rounded-lg p-0.5 bg-accent/20 overflow-x-auto">
                       {[
                         { id: "all", label: "All" },
                         { id: "installed", label: "Active" },
@@ -180,7 +202,7 @@ export function SkillsDialog({ open, onOpenChange }: SkillsDialogProps) {
                           key={cat.id}
                           onClick={() => setActiveCategory(cat.id)}
                           className={cn(
-                            "px-2.5 py-1 text-xs rounded-md transition-all font-mono uppercase tracking-wider",
+                            "px-2 py-1 text-[10px] sm:text-xs rounded-md transition-all font-mono uppercase tracking-wider whitespace-nowrap",
                             activeCategory === cat.id
                               ? "bg-background text-foreground shadow-sm border border-border/40"
                               : "text-muted-foreground hover:text-foreground"
@@ -191,14 +213,14 @@ export function SkillsDialog({ open, onOpenChange }: SkillsDialogProps) {
                       ))}
                     </div>
 
-                    <div className="h-4 w-px bg-border/50" />
+                    <div className="h-4 w-px bg-border/50 flex-shrink-0" />
 
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
                       <ArrowUpDown className="h-3 w-3" />
                       <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value as "popular" | "alphabetical")}
-                        className="bg-transparent text-foreground hover:text-primary outline-none cursor-pointer font-mono uppercase tracking-wider text-[11px]"
+                        className="bg-transparent text-foreground hover:text-primary outline-none cursor-pointer font-mono uppercase tracking-wider text-[10px] sm:text-[11px]"
                       >
                         <option value="popular">Popular</option>
                         <option value="alphabetical">A-Z</option>

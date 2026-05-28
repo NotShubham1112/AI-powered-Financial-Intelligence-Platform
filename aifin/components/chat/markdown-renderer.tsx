@@ -107,7 +107,9 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
             <div {...(props as React.HTMLAttributes<HTMLDivElement>)} />
           ),
           table: ({ node, ...props }) => (
-            <table className="my-6 w-full border-collapse border border-border text-sm" {...props} />
+            <div className="w-full overflow-x-auto">
+              <table className="my-6 w-full border-collapse border border-border text-sm" {...props} />
+            </div>
           ),
           thead: ({ node, ...props }) => (
             <thead className="bg-muted/50" {...props} />

@@ -86,7 +86,7 @@ export function ChatInput({
   )
 
   return (
-    <div className="flex-shrink-0 border-t border-border bg-background px-6 py-4">
+    <div className="flex-shrink-0 border-t border-border bg-background px-3 py-3 md:px-6 md:py-4">
       <div className="mx-auto max-w-[1200px]">
         <form onSubmit={onSubmit} className="relative">
           <SlashCommandPopover
@@ -99,20 +99,18 @@ export function ChatInput({
           <TerminalPanel
             header={null}
             footer={
-              <div className="flex items-center justify-between px-3 py-2">
-                <div className="flex items-center gap-2">
-                  {/* Active status indicator + Todo panel */}
-                  <div className="flex items-center gap-2">
-                    <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.35)]" />
+              <div className="flex items-center justify-between px-2 py-1.5 md:px-3 md:py-2">
+                <div className="flex items-center gap-1 md:gap-2 min-w-0">
+                  <span className="hidden md:inline-block h-2 w-2 flex-shrink-0 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.35)]" />
+                  <div className="hidden md:block">
+                    <TodoPanel />
                   </div>
-                  <TodoPanel />
-                  <div className="h-3 w-px bg-border" />
-                  {/* Agent mode toggle */}
+                  <div className="hidden md:block h-3 w-px bg-border" />
                   <button
                     type="button"
                     onClick={() => setAgentEnabled(!agentEnabled)}
                     className={cn(
-                      "flex items-center gap-1.5 px-2 py-1 text-[10px] uppercase tracking-wider font-medium border transition-colors",
+                      "flex items-center gap-1 px-1.5 md:px-2 py-1 text-[10px] uppercase tracking-wider font-medium border transition-colors",
                       agentEnabled
                         ? "border-amber-500/60 bg-amber-500/10 text-amber-400"
                         : "border-border text-muted-foreground/50 hover:text-muted-foreground"
@@ -124,13 +122,13 @@ export function ChatInput({
                     ) : (
                       <MessageSquare className="h-3 w-3" />
                     )}
-                    {agentEnabled ? "Agent" : "Chat"}
+                    <span className="hidden md:inline">{agentEnabled ? "Agent" : "Chat"}</span>
                   </button>
                   {agentEnabled && (
                     <select
                       value={agentMode}
                       onChange={(e) => setAgentMode(e.target.value as typeof agentMode)}
-                      className="bg-transparent text-[10px] uppercase tracking-wider text-muted-foreground outline-none font-medium"
+                      className="hidden md:block bg-transparent text-[10px] uppercase tracking-wider text-muted-foreground outline-none font-medium"
                     >
                       <option value="auto">Auto</option>
                       <option value="reason">Deep</option>
@@ -141,7 +139,7 @@ export function ChatInput({
                   <select
                     value={selectedModel}
                     onChange={(e) => setSelectedModel(e.target.value)}
-                    className="bg-transparent text-[10px] uppercase tracking-wider text-muted-foreground outline-none font-medium"
+                    className="max-w-[100px] md:max-w-none truncate bg-transparent text-[10px] uppercase tracking-wider text-muted-foreground outline-none font-medium"
                   >
                     {OPENROUTER_MODELS.map((m) => (
                       <option key={m.id} value={m.id}>
@@ -150,15 +148,15 @@ export function ChatInput({
                     ))}
                   </select>
                 </div>
-                <MetadataLabel>return · send</MetadataLabel>
+                <MetadataLabel className="hidden md:block">return · send</MetadataLabel>
               </div>
             }
           >
-            <div className="flex items-end gap-2 px-3 py-3">
+            <div className="flex items-end gap-1.5 md:gap-2 px-2 py-2 md:px-3 md:py-3">
               <button
                 type="button"
                 disabled={isLoading}
-                className="mb-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center border border-border text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
+                className="hidden md:flex mb-0.5 h-8 w-8 flex-shrink-0 items-center justify-center border border-border text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
                 title="Attach"
               >
                 <Paperclip className="h-3.5 w-3.5" />
@@ -172,14 +170,14 @@ export function ChatInput({
                 placeholder={placeholder}
                 rows={1}
                 disabled={isLoading}
-                className="min-h-[24px] max-h-[200px] flex-1 resize-none bg-transparent text-[13px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/40"
+                className="min-h-[28px] md:min-h-[24px] max-h-[160px] md:max-h-[200px] flex-1 resize-none bg-transparent text-[14px] md:text-[13px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/40"
               />
 
               <button
                 type="submit"
                 disabled={!input.trim() && !isLoading}
                 className={cn(
-                  "mb-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center border transition-colors",
+                  "mb-0.5 flex h-8 w-8 md:h-7 md:w-7 flex-shrink-0 items-center justify-center border transition-colors",
                   isLoading
                     ? "border-border text-muted-foreground/50"
                     : input.trim()
@@ -198,7 +196,7 @@ export function ChatInput({
                     ariaLabel="Sending"
                   />
                 ) : (
-                  <ArrowUp className="h-3.5 w-3.5" />
+                  <ArrowUp className="h-4 w-4 md:h-3.5 md:w-3.5" />
                 )}
               </button>
             </div>

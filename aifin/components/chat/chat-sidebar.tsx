@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, History, Puzzle, Store, FileText, ChevronRight } from "lucide-react"
+import { Plus, History, Puzzle, Store, FileText, ChevronRight, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useChatStore } from "@/stores/chat-store"
 import { TerminalButton } from "@/design-system/components"
 import { MetadataLabel } from "@/design-system/components"
 import { SkillsDialog } from "./skills-dialog"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { useIsMobile } from "@/hooks/use-mobile"
 import Link from "next/link"
 
 const navItems = [
@@ -14,19 +16,16 @@ const navItems = [
   { id: "artifacts", label: "Artifacts", icon: FileText },
 ] as const
 
-export function ChatSidebar() {
-  const isSidebarOpen = useChatStore((s) => s.isSidebarOpen)
+function SidebarContent() {
   const sessions = useChatStore((s) => s.sessions)
   const activeSessionId = useChatStore((s) => s.activeSessionId)
   const setActiveSession = useChatStore((s) => s.setActiveSession)
   const createSession = useChatStore((s) => s.createSession)
   const [skillsOpen, setSkillsOpen] = useState(false)
 
-  if (!isSidebarOpen) return null
-
   return (
     <>
-      <aside className="relative z-10 flex w-[260px] flex-shrink-0 flex-col justify-between border-r border-border bg-background">
+      <div className="flex flex-1 flex-col justify-between">
         <div>
           <div className="border-b border-border px-4 py-3">
             <TerminalButton
@@ -100,9 +99,45 @@ export function ChatSidebar() {
             </TerminalButton>
           </Link>
         </div>
-      </aside>
+      </div>
 
       <SkillsDialog open={skillsOpen} onOpenChange={setSkillsOpen} />
+    </>
+  )
+}
+
+export function ChatSidebar() {
+  const isSidebarOpen = useChatStore((s) => s.isSidebarOpen)
+  const toggleSidebar = useChatStore((s) => s.toggleSidebar)
+  const isMobile = useIsMobile()
+
+  if (isMobile) {
+    return (
+      <Sheet open={isSidebarOpen} onOpenChange={(open) => { if (!open) toggleSidebar() }}>
+        <SheetContent side="left" className="flex w-[280px] flex-col border-r border-border bg-background p-0" showCloseButton={false}>
+          <div className="flex h-12 items-center justify-between border-b border-border px-4">
+            <span className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">Workspace</span>
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              className="flex h-7 w-7 items-center justify-center border border-border text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
+    )
+  }
+
+  if (!isSidebarOpen) return null
+
+  return (
+    <>
+      <aside className="relative z-10 flex w-[260px] flex-shrink-0 flex-col border-r border-border bg-background">
+        <SidebarContent />
+      </aside>
     </>
   )
 }

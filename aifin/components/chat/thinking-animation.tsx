@@ -39,8 +39,21 @@ export function ThinkingAnimation({
   const statusLabel = label ?? PHASE_LABELS[phase]
 
   return (
-    <div className="flex items-start gap-4 border border-border bg-card/40 px-4 py-3">
+    <div className="flex items-start gap-3 md:gap-4 border border-border bg-card/40 px-3 py-2.5 md:px-4 md:py-3">
       <div className="flex-shrink-0 text-foreground/90">
+        <DotmSquare11
+          animated
+          speed={1.2}
+          pattern="diamond"
+          dotShape="square"
+          size={32}
+          dotSize={4}
+          opacityBase={0.14}
+          opacityMid={0.38}
+          opacityPeak={1}
+          ariaLabel={`${statusLabel} in progress`}
+          className="md:hidden"
+        />
         <DotmSquare11
           animated
           speed={1.2}
@@ -52,11 +65,12 @@ export function ThinkingAnimation({
           opacityMid={0.38}
           opacityPeak={1}
           ariaLabel={`${statusLabel} in progress`}
+          className="hidden md:block"
         />
       </div>
-      <div className="flex min-w-0 flex-col justify-center gap-1.5 pt-1">
+      <div className="flex min-w-0 flex-col justify-center gap-1 md:gap-1.5 pt-0.5 md:pt-1">
         <MetadataLabel>{statusLabel}</MetadataLabel>
-        <span className="font-mono text-[11px] text-muted-foreground/50 animate-[terminal-blink_1.4s_step-end_infinite]">
+        <span className="font-mono text-[10px] md:text-[11px] text-muted-foreground/50 animate-[terminal-blink_1.4s_step-end_infinite]">
           awaiting deterministic output…
         </span>
       </div>
